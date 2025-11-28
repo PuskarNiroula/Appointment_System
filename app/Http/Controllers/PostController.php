@@ -7,12 +7,23 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Yajra\DataTables\DataTables;
 
 class PostController extends Controller
 {
     public function index():View{
-        $posts = Post::all();
-        return view('Post.post',compact('posts'));
+        return view('Post.post');
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getPosts():JsonResponse{
+        $posts = Post::select('name','status','id');
+
+        return DataTables::of($posts)
+            ->addIndexColumn()
+            ->make(true);
     }
 
     public function create():View{
@@ -43,7 +54,36 @@ class PostController extends Controller
         }
     }
 
-    public function edit():View{
-        return view('Post.update_post');
+    public function edit(int $id):View{
+        $post=Post::select('id','name')->findOrFail( $id);
+        return view('Post.update_post',compact('post'));
     }
+    public function update(int $id,Request $request):JsonResponse{
+        $post=Post::findOrFail($id);
+        $request->validate([
+            'name'=>'required|string|max:255|unique:posts,name'
+        ]);
+        $post->name=$request->name;
+        $post->save();
+        return response()->json([
+            'status'=>"success",
+            'message'=>"Post Updated Successfully"
+        ]);
+    }
+
+    public function activate(int $id):JsonResponse{
+        Post::findOrFail($id)->update(['status' => 'active']);
+        return response()->json([
+            'status'=>"success",
+            'message'=>"Post Activated Successfully"
+        ]);
+    }
+    public function deactivate(int $id):JsonResponse{
+        Post::findOrFail($id)->update(['status' => "inactive"]);
+        return response()->json([
+            'status'=>"success",
+            'message'=>"Post Deactivate Successfully"
+        ]);
+    }
+
 }
