@@ -9,6 +9,11 @@
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    {{-- DataTables --}}
+    <link rel="stylesheet"
+          href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 
@@ -25,8 +30,8 @@
         </div>
 
         <nav class="mt-3">
-            <a href="#">Dashboard</a>
-            <a href="#">Posts</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/posts">Posts</a>
             <a href="#">Visitors</a>
             <a href="#">Officers</a>
             <a href="#">Appointment</a>
@@ -56,9 +61,20 @@
 </div>
 
 {{-- Bootstrap JS --}}
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{{-- jQuery --}}
+
+
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.data-table').DataTable();
+    });
 </script>
+
 
 </body>
 </html>
