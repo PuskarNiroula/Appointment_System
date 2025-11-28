@@ -84,7 +84,7 @@
                             Swal.fire({
                                 icon: "success",
                                 title: "Saved!",
-                                text: "Post saved successfully"||response.message,
+                                text: response.message||"Post saved successfully",
                             }).then(() => {
                                 location.reload(); // reload page
                             });
@@ -92,7 +92,7 @@
                             Swal.fire({
                                 icon: "error",
                                 title: "error!",
-                                text: "Post cannot be saved!!!!!"||response.message,
+                                text: response.message||"Post cannot be saved!!!!!",
                             });
                         }
                         },
