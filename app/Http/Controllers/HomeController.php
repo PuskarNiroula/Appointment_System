@@ -7,7 +7,7 @@ class HomeController extends Controller
 {
 
     public function dashboard(){
-        return view('Main.dashboard');
+        return view('dashboard');
     }
 
 }
