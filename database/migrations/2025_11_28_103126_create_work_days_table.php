@@ -16,6 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('officer_id');
             $table->enum('day_of_week',['sunday','monday','tuesday','wednesday','thursday','friday','saturday'])->default('sunday');;
             $table->timestamps();
+
+            $table->foreign('officer_id')->references('id')->on('officers');
         });
     }
 
