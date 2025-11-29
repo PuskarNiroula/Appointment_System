@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @method static findOrFail(int $id)
+ * @method static select(string $string, string $string1, string $string2)
+ * @method static create(array $array)
+ */
 class Officer extends Model
 {
     protected $guarded = [];

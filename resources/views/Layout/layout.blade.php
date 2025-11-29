@@ -30,7 +30,7 @@
             <a href="/dashboard">Dashboard</a>
             <a href="/posts">Posts</a>
             <a href="/visitors">Visitors</a>
-            <a href="#">Officers</a>
+            <a href="/officers">Officers</a>
             <a href="#">Appointment</a>
             <a href="#">Activities</a>
         </nav>

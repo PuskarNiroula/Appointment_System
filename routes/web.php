@@ -35,3 +35,15 @@ Route::controller(VisitorController::class)->group(function () {
     Route::get('/visitor/create','create')->name('visitor.create');
     Route::post('/visitor/create','store')->name('visitor.store');
 });
+
+Route::controller(\App\Http\Controllers\OfficerController::class)->group(function (){
+    Route::get('/officers','index')->name('officers.index');
+    Route::get('/officers-api','getOfficers')->name('officers.api');
+    Route::get('/officer/{id}/edit','edit')->name('officer.edit');
+    Route::put('/officer/{officer}/update','update')->name('officer.update');
+    Route::patch('/officer/{officer}/activate','activate')->name('officer.activate');
+    Route::patch('/officer/{officer}/deactivate','deactivate')->name('officer.deactivate');
+    Route::get('/officer/create','create')->name('officer.create');
+    Route::post('/officer/create','store')->name('officer.store');
+
+});
