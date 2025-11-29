@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OfficerController;
 use App\Http\Controllers\PostController;
@@ -49,4 +50,15 @@ Route::controller(OfficerController::class)->group(function (){
     Route::get('/officer/{id}/working-days','assignDays')->name('officer.assignDays');
     Route::Post('/officer/{id}/working-days','saveWorkingDays')->name('officer.saveWorkingDays');
 
+});
+
+Route::controller(ActivityController::class)->group(function (){
+    Route::get('/activities','index')->name('activities.index');
+    Route::get('/activities-api','getActivities')->name('activities.api');
+    Route::get('/activity/{id}/edit','edit')->name('activity.edit');
+    Route::put('/activity/{activity}/update','update')->name('activity.update');
+    Route::patch('/activity/{activity}/activate','activate')->name('activity.activate');
+    Route::patch('/activity/{activity}/deactivate','deactivate')->name('activity.deactivate');
+    Route::get('/activity/create','create')->name('activity.create');
+    Route::post('/activity/create','store')->name('activity.store');
 });
