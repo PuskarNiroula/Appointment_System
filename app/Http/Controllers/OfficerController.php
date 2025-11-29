@@ -133,7 +133,8 @@ class OfficerController extends Controller
     public function saveWorkingDays(int $id, Request $request):RedirectResponse{
 
         $request->validate([
-            'days' => 'required|array'
+            'days' => 'required|array',
+            'days.*' => 'in:sunday,monday,tuesday,wednesday,thursday,friday,saturday',
         ]);
         try{
             WorkDay::where('officer_id', $id)->delete();

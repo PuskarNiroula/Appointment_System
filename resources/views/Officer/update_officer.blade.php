@@ -1,14 +1,14 @@
 @extends('Layout.layout')
 
 @section("page-title")
-    Register New Officer
+    Update Officer
 @endsection
 
 @section('content')
     <div class="d-flex justify-content-center mt-5">
         <div class="card shadow-sm mb-4" style="width: 60%; min-width: 300px;">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Register New Officer</h5>
+                <h5 class="mb-0">Update Officer</h5>
             </div>
 
             <div class="card-body">
