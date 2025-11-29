@@ -18,7 +18,8 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->enum('status',['active','cancelled'])->default('active');
-            $table->timestamps();
+            $table->time('start_time');
+            $table->time('end_time');
             $table->foreign('officer_id')->references('id')->on('officers');
         });
     }

@@ -32,7 +32,7 @@
             <a href="/visitors">Visitors</a>
             <a href="/officers">Officers</a>
             <a href="#">Appointment</a>
-            <a href="#">Activities</a>
+            <a href="{{route('activities.index')}}">Activities</a>
         </nav>
     </aside>
 
