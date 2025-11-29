@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OfficerController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\VisitorController;
 use Illuminate\Support\Facades\Route;
@@ -36,7 +37,7 @@ Route::controller(VisitorController::class)->group(function () {
     Route::post('/visitor/create','store')->name('visitor.store');
 });
 
-Route::controller(\App\Http\Controllers\OfficerController::class)->group(function (){
+Route::controller(OfficerController::class)->group(function (){
     Route::get('/officers','index')->name('officers.index');
     Route::get('/officers-api','getOfficers')->name('officers.api');
     Route::get('/officer/{id}/edit','edit')->name('officer.edit');
@@ -45,5 +46,7 @@ Route::controller(\App\Http\Controllers\OfficerController::class)->group(functio
     Route::patch('/officer/{officer}/deactivate','deactivate')->name('officer.deactivate');
     Route::get('/officer/create','create')->name('officer.create');
     Route::post('/officer/create','store')->name('officer.store');
+    Route::get('/officer/{id}/working-days','assignDays')->name('officer.assignDays');
+    Route::Post('/officer/{id}/working-days','saveWorkingDays')->name('officer.saveWorkingDays');
 
 });

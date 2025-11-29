@@ -128,7 +128,20 @@
                         return row.work_start_time + '-' + row.work_end_time;
                     }
                 },
-                {data: "working_days", name: "email"},
+                {
+                    data: "work_day",
+                    name: "work_day",
+                    render: function(data, type, row) {
+                        if (!row.work_day || !Array.isArray(row.work_day) || row.work_day.length === 0) {
+                            return '-';
+                        }
+                        let days = row.work_day.map(function(d) {
+                            return d.day_of_week.charAt(0).toUpperCase() + d.day_of_week.slice(1);
+                        });
+                        return days.join(', ');
+                    }
+                },
+
                 {data: 'status', name: 'status'},
                 {
                     data: 'status',
@@ -176,12 +189,8 @@
         `;
                     }
                 }
-
-
             ];
-
             initDataTable(".data-table", "{{ route('officers.api') }}", columns);
-
         });
     </script>
 

@@ -22,7 +22,7 @@
                             class="form-control @error('name') is-invalid @enderror"
                             value="{{$officer->name}}"
                             placeholder="Enter name" required/>
-                        <label for="mobile_number" class="form-label">Post</label>
+                        <label for="post_id" class="form-label">Post</label>
                         @if(!empty($posts))
                             <select name="post_id" id="post_id" class="form-control" required>
                                 @foreach($posts as $post)
@@ -37,20 +37,22 @@
                             <span class="error text-danger">No any Post please create a active post first</span>
                         @endif
 
-                        <label for="email" class="form-label">Work Start Time</label>
+                        <label for="start_time" class="form-label">Work Start Time</label>
                         <input
                             type="time"
                             name="start_time"
                             id="start_time"
                             class="form-control @error('start_time') is-invalid @enderror"
+                            value="{{\Carbon\Carbon::parse($officer->work_start_time)->format('H:i')}}"
                             placeholder="Enter email" required/>
                         <span class="error text-danger"></span>
-                        <label for="email" class="form-label">Work End Time</label>
+                        <label for="end_time" class="form-label">Work End Time</label>
                         <input
                             type="time"
                             name="end_time"
                             id="end_time"
                             class="form-control @error('end_time') is-invalid @enderror"
+                            value="{{\Carbon\Carbon::parse($officer->work_end_time)->format('H:i')}}"
                             placeholder="Enter email" required/>
                         <span class="error text-danger"></span>
                     </div>
@@ -81,7 +83,7 @@
                 if(result.isConfirmed){
                     $.ajax({
                         url: "{{ route('officer.update',$officer->id) }}",
-                        type: "POST",
+                        type: "PUT",
                         headers: {
                             "X-CSRF-TOKEN": csrfToken
                         },
