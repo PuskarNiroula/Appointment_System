@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('visitors', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string(',mobile_num');
+            $table->string('mobile_num');
             $table->string('email')->unique();
             $table->enum('status',['active','inactive'])->default('active');
             $table->timestamps();

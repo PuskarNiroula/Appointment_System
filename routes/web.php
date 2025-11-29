@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\VisitorController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -21,4 +22,16 @@ Route::controller(PostController::class)->group(function () {
     Route::get('/posts-api','getPosts')->name('posts.api');
     Route::patch('/posts/{post}/activate','activate')->name('post.activate');
     Route::patch('/posts/{post}/deactivate','deactivate')->name('post.deactivate');
+});
+
+
+Route::controller(VisitorController::class)->group(function () {
+    Route::get('/visitors', 'index')->name('visitors.index');
+    Route::get('/get-visitor-api','getVisitors')->name('visitors.api');
+    Route::get('/visitor/{id}/edit','edit')->name('visitor.edit');
+    Route::put('/visitor/{visitor}/update','update')->name('visitor.update');
+    Route::patch('/visitor/{visitor}/activate','activate')->name('visitor.activate');
+    Route::patch('/visitor/{visitor}/deactivate','deactivate')->name('visitor.deactivate');
+    Route::get('/visitor/create','create')->name('visitor.create');
+    Route::post('/visitor/create','store')->name('visitor.store');
 });
