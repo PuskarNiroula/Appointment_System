@@ -97,7 +97,7 @@ class OfficerService
 
     public function getWorkingOfficers()
     {
-        return Officer::whereHas('workDay')->get();
+        return Officer::whereHas('workDay')->where('status','active')->get();
     }
     public function getAllOfficers(){
         return Officer::all();

@@ -106,6 +106,13 @@ class ActivityController extends Controller
 
         return response()->json($response);
     }
+
+    public function edit(int $id){
+        $activity=Activity::findOrFail($id);
+        $officers=$this->officerService->getWorkingOfficers();
+        return view('Activity.update_activity',compact('activity','officers'));
+
+    }
 }
 
 

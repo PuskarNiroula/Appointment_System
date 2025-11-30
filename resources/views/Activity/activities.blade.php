@@ -120,7 +120,7 @@
                 {data: 'end_date', name: 'end_date'},
                 {data: 'start_time', name: 'start_time'},
                 {data: 'end_time', name: 'end_time'},
-                {data: 'status', name: 'status', orderable: false, searchable: false},
+                {data: 'status', name: 'status'},
                 {
                     data: 'status',
                     name: 'action',
@@ -128,11 +128,19 @@
                     searchable: false,
                     render: function(data, type, row) {
 
+
                         let editBtn = `<a href="/activity/${row.id}/edit" class="btn btn-sm btn-primary me-1">Edit</a>`;
 
                         let statusBtn = row.status === 'active'
                             ? `<button class="btn btn-sm btn-warning" onclick="cancel(${row.id})">Cancel</button>`
                             : `<button class="btn btn-sm btn-success" onclick="activate(${row.id})">Activate</button>`;
+
+                        if(row.status === 'cancelled' || row.status === 'completed'){
+                            return row.status;
+                        }
+                        if(row.type === 'appointment')
+                            return statusBtn;
+
 
                         return editBtn + statusBtn;
                     }
