@@ -78,6 +78,7 @@ class ActivityService
     private function checkIfAvailable($officer_id, $newStartDate, $newEndDate, $newStartTime, $newEndTime)
     {
         $existingActivities = Activity::where('officer_id', $officer_id)
+            ->whereNotIn('status', ['cancelled','completed'])
             ->where(function ($query) use ($newStartDate, $newEndDate) {
                 $query->where('start_date', '<=', $newStartDate)
                     ->where('end_date', '>=', $newStartDate);

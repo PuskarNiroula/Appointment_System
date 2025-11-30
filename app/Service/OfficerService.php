@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Models\Appointment;
 use App\Models\Officer;
-use App\Models\WorkDay;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -72,7 +71,7 @@ class OfficerService
     {
         DB::beginTransaction();
         try {
-            $now = Carbon::now();
+            $now = Carbon::now('Asia/Kathmandu');
             $officer = Officer::findOrFail($id);
             $appointments = Appointment::where('officer_id', $id)
                 ->where(function ($query) use ($now) {

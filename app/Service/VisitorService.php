@@ -80,7 +80,10 @@ class VisitorService
     public function checkIfAvailable(int $id,$date,$start_time,$end_time):bool{
         try{
             Visitor::findOrFail($id);
-            $appointments=Appointment::where('visitor_id',$id)->where('appointment_date',$date)->get();
+            $appointments=Appointment::where('visitor_id',$id)
+                ->where('appointment_date',$date)
+                ->whereNotIn('status',['cancelled','completed'])
+                ->get();
             foreach($appointments as $appointment){
                 if($appointment->start_time<=$start_time && $appointment->end_time>$end_time){
                     return false;

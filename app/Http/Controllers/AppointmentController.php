@@ -112,17 +112,21 @@ class AppointmentController extends Controller
                 'end_time' => $request->end_time,
             ];
             $resp= $this->activityService->store($data);
-            DB::commit();
-            if($resp['status']=='success')
+
+            if($resp['status']=='success') {
+                DB::commit();
                 return response()->json([
-                'status'=>'success',
-                'message'=>'Appointment Created Successfully'
+                    'status' => 'success',
+                    'message' => 'Appointment Created Successfully'
                 ]);
+            }
+            DB::rollBack();
             return response()->json([
                 'status'=>'error',
-                'message'=>'Appointment Created Failed'
+                'message'=>$resp['message']??'Appointment Created Failed'
             ]);
         }catch (Exception $e){
+            DB::rollBack();
             return response()->json([
                 'status'=>'error',
                 'message'=>$e->getMessage()
