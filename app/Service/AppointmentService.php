@@ -2,6 +2,8 @@
 namespace App\Service;
 
 use App\Models\Appointment;
+use App\Models\Visitor;
+use Illuminate\Support\Facades\App;
 
 class AppointmentService{
 
@@ -27,5 +29,9 @@ class AppointmentService{
             return true;
         }
         return false;
+    }
+    public function store(array $data):void
+    {
+        Appointment::create($data);
     }
 }

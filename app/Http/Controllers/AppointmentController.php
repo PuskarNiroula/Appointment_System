@@ -3,21 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
-use App\Models\Officer;
-use App\Models\Visitor;
+use App\Service\ActivityService;
 use App\Service\AppointmentService;
+use App\Service\OfficerService;
+use App\Service\VisitorService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Yajra\DataTables\DataTables;
 
 class AppointmentController extends Controller
 {
    protected AppointmentService $service;
+   protected VisitorService $visitorService;
+    protected ActivityService $activityService;
+    protected OfficerService $officerService;
+    protected AppointmentService $appointmentService;
     public function __construct(){
         $this->service=new AppointmentService();
+        $this->visitorService=new VisitorService();
+        $this->activityService=new ActivityService();
+        $this->officerService=new OfficerService();
+        $this->appointmentService=new AppointmentService();
     }
     public function index():View{
         return view('Appointment.index');
@@ -40,8 +50,8 @@ class AppointmentController extends Controller
     }
 
     public function create():View{
-        $officers=Officer::where('status','active')->orderBy('name')->get();
-        $visitors=Visitor::where('status','active')->orderBy('name')->get();
+        $officers=$this->officerService->getWorkingOfficers();
+        $visitors=$this->visitorService->getActiveVisitors();
         return view('Appointment.create',compact('officers','visitors'));
     }
 
@@ -54,6 +64,7 @@ class AppointmentController extends Controller
             'start_time'=>'required|date_format:H:i:s',
             'end_time'=>'required|date_format:H:i:s|after:start_time'
         ]);
+
 
         try{
             if($request->date<$now->toDateString()){
@@ -70,19 +81,52 @@ class AppointmentController extends Controller
                     ]);
                 }
             }
-            Appointment::create([
+            //checking for the visitor
+            if(!$this->visitorService->checkIfAvailable(
+                $request->visitor_id,
+                $request->date,
+                $request->start_time,
+                $request->end_time)
+            ){
+                return response()->json([
+                    'status'=>'error',
+                    'message'=>'Visitor is not available on this time slot'
+                ]);
+            }
+            DB::beginTransaction();
+            $appointment_data=[
                 'officer_id'=>$request->officer_id,
                 'visitor_id'=>$request->visitor_id,
                 'appointment_date'=>$request->date,
                 'start_time'=>$request->start_time,
                 'end_time'=>$request->end_time,
-            ]);
-            return response()->json([
-                'status'=>'success',
-                'message'=>'Appointment Created Successfully'
-            ]);
+            ];
 
+           $this->appointmentService->store($appointment_data);
+            $data = [
+                'officer_id' => $request->officer_id,
+                'type' => 'appointment',
+                'start_date' => $request->date,
+                'end_date' => $request->date,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+            ];
+            $resp= $this->activityService->store($data);
+
+            if($resp['status']=='success') {
+                DB::commit();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Appointment Created Successfully'
+                ]);
+            }
+            DB::rollBack();
+            return response()->json([
+                'status'=>'error',
+                'message'=>$resp['message']??'Appointment Created Failed'
+            ]);
         }catch (Exception $e){
+            DB::rollBack();
             return response()->json([
                 'status'=>'error',
                 'message'=>$e->getMessage()
@@ -104,8 +148,8 @@ class AppointmentController extends Controller
   }
   public function edit(int $id):View{
         $appointment=Appointment::findOrFail($id);
-        $officers=Officer::where('status','active')->orderBy('name')->get();
-        $visitors=Visitor::where('status','active')->orderBy('name')->get();
+        $officers=$this->officerService->getWorkingOfficers();
+        $visitors=$this->visitorService->getActiveVisitors();
         return view('Appointment.update',compact('appointment','officers','visitors'));
   }
   public function update(int $id,Request $request):JsonResponse{

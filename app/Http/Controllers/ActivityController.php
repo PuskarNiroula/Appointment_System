@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Activity;
-use App\Models\Officer;
 use App\Service\ActivityService;
+use App\Service\OfficerService;
+use App\Service\VisitorService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -14,10 +15,17 @@ use Yajra\DataTables\DataTables;
 
 class ActivityController extends Controller
 {
-    public ActivityService $service;
+    protected ActivityService $service;
+    protected VisitorService $visitorService;
+    protected OfficerService $officerService;
 
-    public function __construct(ActivityService $service){
-        $this->service = $service;
+
+
+    public function __construct(){
+        $this->service = new ActivityService();
+        $this->visitorService=new VisitorService();
+        $this->officerService=new OfficerService();
+
     }
     public function index(): View
     {
@@ -42,13 +50,13 @@ class ActivityController extends Controller
 
     public function create(): View
     {
-        $officers = Officer::all();
+        $officers = $this->officerService->getWorkingOfficers();
         return view('Activity.create_activity', compact('officers'));
     }
 
     public function store(Request $request): JsonResponse
     {
-        // All validation remains here (unchanged)
+        // All the validation remains here
         $request->validate([
             'officer_id' => 'required|exists:officers,id',
             'type' => ['required', 'string', 'in:leave,break'],
@@ -65,8 +73,25 @@ class ActivityController extends Controller
                 }
             }],
         ]);
+        //checking for pastData
+        $now=Carbon::now('Asia/Kathmandu');
 
-        // Prepare clean data array for service
+        if($request->start_date<$now->toDateString()){
+            return response()->json([
+                'status'=>'error',
+                'message'=>'Activity Date Must Be In Future'
+            ]);
+        }
+        if($request->start_date==$now->toDateString()){
+            if($request->start_time<$now->toTimeString()){
+                return response()->json([
+                    'status'=>'error',
+                    'message'=>"Activity Time Must Be In Future",
+                ]);
+            }
+        }
+
+        // converting to array for sending to service
         $data = [
             'officer_id' => $request->officer_id,
             'type' => $request->type,
@@ -76,7 +101,7 @@ class ActivityController extends Controller
             'end_time' => $request->end_time,
         ];
 
-        // Pass clean data to service
+        // Passing the clean data to service
         $response = $this->service->store($data);
 
         return response()->json($response);

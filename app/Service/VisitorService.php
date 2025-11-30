@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Models\Appointment;
 use App\Models\Visitor;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class VisitorService
@@ -40,7 +41,7 @@ class VisitorService
             DB::commit();
             return true;
 
-        } catch (\Exception $e) {
+        } catch (Exception) {
             DB::rollBack();
             return false;
         }
@@ -54,10 +55,7 @@ class VisitorService
         DB::beginTransaction();
 
         try {
-            // Deactivate visitor
             Visitor::findOrFail($id)->update(['status' => 'inactive']);
-
-            // Fetch active appointments
             $appointments = Appointment::where('visitor_id', $id)
                 ->where('status', 'active')
                 ->get();
@@ -69,7 +67,7 @@ class VisitorService
             DB::commit();
             return true;
 
-        } catch (\Exception $e) {
+        } catch (Exception) {
             DB::rollBack();
             return false;
         }
@@ -78,5 +76,32 @@ class VisitorService
        if( Visitor::where('id',$id)->where('status','active')->exists())
            return true;
        return false;
+    }
+    public function checkIfAvailable(int $id,$date,$start_time,$end_time):bool{
+        try{
+            Visitor::findOrFail($id);
+            $appointments=Appointment::where('visitor_id',$id)
+                ->where('appointment_date',$date)
+                ->whereNotIn('status',['cancelled','completed'])
+                ->get();
+            foreach($appointments as $appointment){
+                if($appointment->start_time<=$start_time && $appointment->end_time>$end_time){
+                    return false;
+                }elseif ($appointment->start_time<$end_time && $appointment->end_time>=$start_time){
+                    return false;
+                }
+            }
+            return true;
+        }catch (Exception){
+            return false;
+        }
+    }
+    public function getActiveVisitors(){
+        return Visitor::where('status','active')->get();
+    }
+
+
+    public function getAllVisitors(){
+        return Visitor::all();
     }
 }
