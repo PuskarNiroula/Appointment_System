@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OfficerController;
 use App\Http\Controllers\PostController;
@@ -61,4 +62,12 @@ Route::controller(ActivityController::class)->group(function (){
     Route::patch('/activity/{activity}/deactivate','deactivate')->name('activity.deactivate');
     Route::get('/activity/create','create')->name('activity.create');
     Route::post('/activity/create','store')->name('activity.store');
+});
+
+Route::controller(AppointmentController::class)->group(function (){
+Route::prefix('appointment')->group(function (){
+    Route::get('/',"index")->name('appointment.index');
+    Route::get('/appointment-api',"getAppointment")->name('appointment.api');
+    Route::get('/create','create')->name('appointment.create');
+});
 });

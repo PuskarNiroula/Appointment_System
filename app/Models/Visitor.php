@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @method static findOrFail(int $id)
  * @method static create(array $array)
+ * @method static where(string $string, string $string1)
  */
 class Visitor extends Model
 {

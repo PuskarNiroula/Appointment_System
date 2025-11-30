@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('status',['active','cancelled','deactivated','completed'])->default('active');
             $table->time("start_time");
             $table->time("end_time");
+            $table->date("appointment_date");
             $table->timestamps();
 
             $table->foreign('visitor_id')->references('id')->on('visitors');
