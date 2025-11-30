@@ -33,6 +33,13 @@ class OfficerController extends Controller
     }
 
     public function activate(int $id):JsonResponse{
+        $officer=Officer::findOrFail($id);
+        if(Post::findOrFail($officer->post_id)->status=='inactive'){
+            return response()->json([
+                'status'=>'error',
+                'message'=>'Post is inactive, cannot activate officer.'
+            ]);
+        }
         Officer::findOrFail($id)->update(['status'=>'active']);
         return response()->json([
             'status'=>'success',

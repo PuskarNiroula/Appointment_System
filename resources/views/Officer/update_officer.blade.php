@@ -23,19 +23,19 @@
                             value="{{$officer->name}}"
                             placeholder="Enter name" required/>
                         <label for="post_id" class="form-label">Post</label>
-                        @if(!empty($posts))
+                        @if(!empty($posts) && $posts->count())
                             <select name="post_id" id="post_id" class="form-control" required>
                                 @foreach($posts as $post)
                                     <option value="{{ $post->id }}"
-                                    @if($officer->post->id==$post->id)
-                                        selected
-                                        @endif
-                                        >{{ $post->name }}</option>
+                                        {{ $officer->post_id == $post->id ? 'selected' : '' }}>
+                                        {{ $post->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         @else
-                            <span class="error text-danger">No any Post please create a active post first</span>
+                            <span class="error text-danger">No posts found. Please create an active post first.</span>
                         @endif
+
 
                         <label for="start_time" class="form-label">Work Start Time</label>
                         <input
