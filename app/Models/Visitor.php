@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @method static findOrFail(int $id)
  * @method static create(array $array)
+ * @method static where(string $string, string $string1)
  */
 class Visitor extends Model
 {
@@ -17,8 +18,5 @@ class Visitor extends Model
        return $this->HasMany(Appointment::class);
    }
 
-   public function getHidden()
-   {
-       return ['created_at','updated_at'];
-   }
+  protected $hidden = ['created_at','updated_at'];
 }

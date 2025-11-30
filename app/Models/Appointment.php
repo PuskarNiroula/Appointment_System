@@ -5,6 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @method static create(array $array)
+ * @method static get()
+ * @method static find(int $id)
+ * @method static findOrFail(int $id)
+ * @method static where(string $string, int $id)
+ */
 class Appointment extends Model
 {
 
@@ -16,5 +23,7 @@ class Appointment extends Model
     public function officer(): BelongsTo{
         return $this->belongsTo(Officer::class);
     }
+
+    protected $hidden = ['created_at','updated_at'];
 
 }

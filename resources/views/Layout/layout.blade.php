@@ -31,7 +31,7 @@
             <a href="/posts">Posts</a>
             <a href="/visitors">Visitors</a>
             <a href="/officers">Officers</a>
-            <a href="#">Appointment</a>
+            <a href="{{route('appointment.index')}}">Appointment</a>
             <a href="{{route('activities.index')}}">Activities</a>
         </nav>
     </aside>
