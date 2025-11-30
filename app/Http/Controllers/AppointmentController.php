@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Models\Officer;
 use App\Models\Visitor;
 use App\Service\AppointmentService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -45,6 +46,7 @@ class AppointmentController extends Controller
     }
 
     public function store(Request $request):JsonResponse{
+        $now=Carbon::now('Asia/Kathmandu');
         $request->validate([
             'officer_id'=>'required|exists:officers,id',
             'visitor_id'=>'required|exists:visitors,id',
@@ -54,6 +56,20 @@ class AppointmentController extends Controller
         ]);
 
         try{
+            if($request->date<$now->toDateString()){
+                return response()->json([
+                    'status'=>'error',
+                    'message'=>'Appointment Date Must Be In Future'
+                ]);
+            }
+            if($request->date==$now->toDateString()){
+                if($request->start_time<$now->toTimeString()){
+                    return response()->json([
+                        'status'=>'error',
+                        'message'=>'Appointment Time Must Be In Future (Your time:'.$now->toTimeString().'-'.$request->start_time.')'
+                    ]);
+                }
+            }
             Appointment::create([
                 'officer_id'=>$request->officer_id,
                 'visitor_id'=>$request->visitor_id,

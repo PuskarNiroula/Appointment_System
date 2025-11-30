@@ -3,6 +3,8 @@ namespace App\Service;
 
 use App\Models\Appointment;
 use App\Models\Officer;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class OfficerService{
@@ -19,21 +21,40 @@ class OfficerService{
         return $officer && $officer->status === 'active';
     }
 
-    public function activateOfficer(int $id):bool{
+    public function activateOfficer(int $id):bool
+    {
         DB::beginTransaction();
-        try{
-            $officer=Officer::findOrFail($id);
 
-            $appointments=Appointment::where('officer_id',$id)->with('visitor')->get();
-            foreach ($appointments as $appointment){
-                if($appointment->visitor->status==='active'){
+        try {
+            // Find the officer
+            $officer = Officer::findOrFail($id);
+
+            $now = Carbon::now('Asia/Kathmandu');
+            // Get only future appointments
+            $appointments = Appointment::where('officer_id', $id)
+                ->where(function ($query) use ($now) {
+                    $query->where('appointment_date', '>', $now->toDateString())
+                        ->orWhere(function ($q) use ($now) {
+                            $q->where('appointment_date', $now->toDateString())
+                                ->where('start_time', '>=', $now->toTimeString());
+                        });
+                })
+                ->with('visitor')
+                ->get();
+
+            foreach ($appointments as $appointment) {
+                if ($appointment->visitor && $appointment->visitor->status === 'active') {
                     $this->appointmentService->activateAppointment($appointment->id);
                 }
             }
-            $officer->update(['status'=>'active']);
+
+            // Activate officer
+            $officer->update(['status' => 'active']);
+
             DB::commit();
             return true;
-        }catch (\Exception $e){
+
+        } catch (Exception $e) {
             DB::rollBack();
             return false;
         }
@@ -41,8 +62,18 @@ class OfficerService{
     public function deactivateOfficer(int $id):bool{
       DB::beginTransaction();
       try{
+          $now=Carbon::now();
          $officer= Officer::findOrFail($id);
-          $appointments=Appointment::where('officer_id',$id)->where('status','active')->get();
+          $appointments = Appointment::where('officer_id', $id)
+              ->where(function ($query) use ($now) {
+                  $query->where('appointment_date', '>', $now->toDateString())
+                      ->orWhere(function ($q) use ($now) {
+                          $q->where('appointment_date', $now->toDateString())
+                              ->where('start_time', '>=', $now->toTimeString());
+                      });
+              })
+              ->with('visitor')
+              ->get();
           foreach ($appointments as $appointment){
               $this->appointmentService->deactivateAppointment($appointment->id);
           }
