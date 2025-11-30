@@ -5,6 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @method static create(array $array)
+ * @method static get()
+ * @method static find(int $id)
+ * @method static findOrFail(int $id)
+ */
 class Appointment extends Model
 {
 

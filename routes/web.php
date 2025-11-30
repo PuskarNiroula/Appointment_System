@@ -69,5 +69,9 @@ Route::prefix('appointment')->group(function (){
     Route::get('/',"index")->name('appointment.index');
     Route::get('/appointment-api',"getAppointment")->name('appointment.api');
     Route::get('/create','create')->name('appointment.create');
+    Route::post('/store','store')->name('appointment.store');
+    Route::patch('/{appointment}/cancel','cancelAppointment')->name('appointment.cancel');
+    Route::get('/{appointment}/edit','edit')->name('appointment.edit');
+    Route::put('/{appointment}/update','update')->name('appointment.update');
 });
 });

@@ -18,8 +18,5 @@ class Visitor extends Model
        return $this->HasMany(Appointment::class);
    }
 
-   public function getHidden()
-   {
-       return ['created_at','updated_at'];
-   }
+  protected $hidden = ['created_at','updated_at'];
 }

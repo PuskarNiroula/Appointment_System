@@ -1,18 +1,18 @@
 @extends('Layout.layout')
 
-@section("page-title", "Activities")
+@section("page-title", "Appointments")
 
 @section('content')
 
     <div
         class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <a href="{{ route('activity.create') }}" class="btn btn-primary">Create Activity</a>
+        <a href="{{ route('appointment.create') }}" class="btn btn-primary">Create Appointment</a>
     </div>
 
     <div class="d-flex justify-content-center mt-4">
         <div class="card shadow-sm w-75">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Activities Table</h5>
+                <h5 class="mb-0">Appointments Table</h5>
             </div>
             <div class="d-flex justify-content-end mb-3">
                 <div class="input-group" style="max-width: 300px; padding: 10px;">
@@ -54,7 +54,7 @@
             }).then((result) => {
                 if(result.isConfirmed){
                     $.ajax({
-                        url: `/activity/${id}/cancel/`,
+                        url: `/appointment/${id}/cancel/`,
                         method: 'patch',
                         headers: {
                             "X-CSRF-TOKEN": csrf_token
@@ -65,37 +65,6 @@
                                 Swal.fire("Success!", response.message, "success").then(()=>{
                                     location.reload();
                                 });
-                            }else{
-                                Swal.fire("Error!", response.message, "error");
-                            }
-                        },
-                        errors: function (error) {
-                            Swal.fire("Error!", "Something went wrong", "error");
-                        }
-                    });
-
-                }
-            })
-        }
-        function activate(id) {
-            Swal.fire({
-                "title": "Are you sure?",
-                showCancelButton: true,
-            }).then((result) => {
-                if(result.isConfirmed){
-                    $.ajax({
-                        url: `/posts/${id}/activate/`,
-                        method: 'patch',
-                        headers: {
-                            "X-CSRF-TOKEN": csrf_token
-                        },
-
-                        success: function (response) {
-                            if(response.status === 'success'){
-                                Swal.fire("Success!", response.message, "success").then(()=>{
-                                    location.reload();
-                                });
-
                             }else{
                                 Swal.fire("Error!", response.message, "error");
                             }
@@ -115,7 +84,7 @@
                 {data: 'DT_RowIndex', name: 'id', orderable: false, searchable: false},
                 {data: 'officer_name', name: 'officer_name'},
                 {data: 'visitor_name', name: 'visitor_name'},
-                {data: 'date', name: 'date'},
+                {data: 'appointment_date', name: 'appointment_date'},
                 {data: 'start_time', name: 'start_time'},
                 {data: 'end_time', name: 'end_time'},
                 {data: 'status', name: 'status', orderable: false, searchable: false},
@@ -125,12 +94,14 @@
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
+                        if(row.status==="cancelled") return ("Cancelled")
+                        if(row.status==="completed") return ("Completed")
 
-                        let editBtn = `<a href="/activity/${row.id}/edit" class="btn btn-sm btn-primary me-1">Edit</a>`;
+                        let editBtn = `<a href="/appointment/${row.id}/edit" class="btn btn-sm btn-primary me-1">Edit</a>`;
 
                         let statusBtn = row.status === 'active'
                             ? `<button class="btn btn-sm btn-warning" onclick="cancel(${row.id})">Cancel</button>`
-                            : `<button class="btn btn-sm btn-success" onclick="activate(${row.id})">Activate</button>`;
+                            : 'deactivated';
 
                         return editBtn + statusBtn;
                     }
