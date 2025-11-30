@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Officer;
 use App\Models\Post;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -79,11 +80,17 @@ class PostController extends Controller
         ]);
     }
     public function deactivate(int $id):JsonResponse{
-        Post::findOrFail($id)->update(['status' => "inactive"]);
-        return response()->json([
-            'status'=>"success",
-            'message'=>"Post Deactivate Successfully"
-        ]);
+      if(Officer::where('post_id',$id)->where('status',"active")->exists()){
+          return response()->json([
+              'status'=>"error",
+              'message'=>"Post Deactivated Failed, There are officer(s) assigned to this post."
+          ]);
+      }
+      Post::findOrFail($id)->update(['status' => 'inactive']);
+      return response()->json([
+          'status'=>"success",
+          'message'=>"Post Deactivated Successfully"
+      ]);
     }
 
 }
