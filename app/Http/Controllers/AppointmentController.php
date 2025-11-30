@@ -39,8 +39,8 @@ class AppointmentController extends Controller
     }
 
     public function create():View{
-        $officers=Officer::where('status','active')->get();
-        $visitors=Visitor::where('status','active')->get();
+        $officers=Officer::where('status','active')->orderBy('name')->get();
+        $visitors=Visitor::where('status','active')->orderBy('name')->get();
         return view('Appointment.create',compact('officers','visitors'));
     }
 
@@ -88,8 +88,8 @@ class AppointmentController extends Controller
   }
   public function edit(int $id):View{
         $appointment=Appointment::findOrFail($id);
-        $officers=Officer::where('status','active')->get();
-        $visitors=Visitor::where('status','active')->get();
+        $officers=Officer::where('status','active')->orderBy('name')->get();
+        $visitors=Visitor::where('status','active')->orderBy('name')->get();
         return view('Appointment.update',compact('appointment','officers','visitors'));
   }
   public function update(int $id,Request $request):JsonResponse{

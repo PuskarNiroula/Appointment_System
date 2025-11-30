@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static get()
  * @method static find(int $id)
  * @method static findOrFail(int $id)
+ * @method static where(string $string, int $id)
  */
 class Appointment extends Model
 {

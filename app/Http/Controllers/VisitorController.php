@@ -3,14 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Visitor;
+use App\Service\VisitorService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\DataTables;
 
-class VisitorController extends Controller
+ class VisitorController extends Controller
 {
+    protected VisitorService $service;
+
+    public function __construct(VisitorService $service){
+        $this->service=$service;
+    }
     public function index():View{
         return view('Visitor.visitor');
     }
@@ -23,32 +29,29 @@ class VisitorController extends Controller
     }
 
     public function activate(int $id):JsonResponse{
-        try{
-            Visitor::findOrFail($id)->update(['status' => 'active']);
+        if($this->service->activateVisitor($id)){
             return response()->json([
                 'status'=>"success",
                 'message'=>"Visitor Activated Successfully"
             ]);
-        }catch (Exception $e){
-            return response()->json([
-                'status'=>"error",
-                'message'=>$e->getMessage()
-            ]);
         }
+        return response()->json([
+            'status'=>"error",
+            'message'=>"Visitor Activated Failed"
+        ]);
     }
     public function deactivate(int $id):JsonResponse{
-        try{
-            Visitor::findOrFail($id)->update(['status' => 'inactive']);
+        if($this->service->deactivateVisitor($id)){
             return response()->json([
                 'status'=>"success",
                 'message'=>"Visitor Deactivated Successfully"
             ]);
-        }catch (Exception $e){
-            return response()->json([
-                'status'=>"error",
-                'message'=>$e->getMessage()
-            ]);
         }
+        return response()->json([
+            'status'=>"error",
+            'message'=>"Visitor Deactivated Failed"
+        ]);
+
     }
     public function create():View{
         return view('Visitor.create_visitor');
