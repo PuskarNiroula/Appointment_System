@@ -128,11 +128,19 @@
                     searchable: false,
                     render: function(data, type, row) {
 
+
                         let editBtn = `<a href="/activity/${row.id}/edit" class="btn btn-sm btn-primary me-1">Edit</a>`;
 
                         let statusBtn = row.status === 'active'
                             ? `<button class="btn btn-sm btn-warning" onclick="cancel(${row.id})">Cancel</button>`
                             : `<button class="btn btn-sm btn-success" onclick="activate(${row.id})">Activate</button>`;
+
+                        if(row.status === 'cancelled' || row.status === 'completed'){
+                            return row.status;
+                        }
+                        if(row.type === 'appointment')
+                            return statusBtn;
+
 
                         return editBtn + statusBtn;
                     }
