@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @method static create(array $array)
  * @method static get()
+ * @method static where(string $string, mixed $officer_id)
  */
 class Activity extends Model
 {
