@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Models\Activity;
+use App\Models\Appointment;
 use App\Models\Officer;
 use App\Models\WorkDay;
 use Carbon\Carbon;
@@ -78,16 +79,21 @@ class ActivityService
     private function checkIfAvailable($officer_id, $newStartDate, $newEndDate, $newStartTime, $newEndTime)
     {
         $existingActivities = Activity::where('officer_id', $officer_id)
-            ->whereNotIn('status', ['cancelled','completed'])
-            ->where(function ($query) use ($newStartDate, $newEndDate) {
-                $query->where('start_date', '<=', $newStartDate)
-                    ->where('end_date', '>=', $newStartDate);
-            })
-            ->orWhere(function ($query) use ($newEndDate, $newStartDate) {
-                $query->where('start_date', '<=', $newEndDate)
-                    ->where('end_date', '>=', $newEndDate);
-            })
             ->where('status', 'active')
+            ->where(function ($query) use ($newStartDate, $newEndDate) {
+
+                // New range overlaps existing range
+                $query->where(function ($q) use ($newStartDate, $newEndDate) {
+                    $q->where('start_date', '<=', $newStartDate)
+                        ->where('end_date', '>=', $newStartDate);
+                })
+
+                    ->orWhere(function ($q) use ($newStartDate, $newEndDate) {
+                        $q->where('start_date', '<=', $newEndDate)
+                            ->where('end_date', '>=', $newEndDate);
+                    });
+
+            })
             ->get();
 
         foreach ($existingActivities as $activity) {
@@ -108,7 +114,7 @@ class ActivityService
                     ) {
                         return [
                             'status'  => 'error',
-                            'message' => "The officer is busy between {$activity->start_time} and {$activity->end_time} on {$activity->start_date}."
+                            'message' => " The officer is busy between {$activity->start_time} and {$activity->end_time} on {$activity->type}."
                         ];
                     }
 
@@ -146,5 +152,6 @@ class ActivityService
             'status' => 'success'
         ];
     }
+
 
 }

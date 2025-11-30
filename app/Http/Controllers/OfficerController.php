@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Activity;
+use App\Models\Appointment;
 use App\Models\Officer;
 use App\Models\Post;
 use App\Models\WorkDay;
 use App\Service\OfficerService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Yajra\DataTables\DataTables;
 
@@ -121,31 +125,65 @@ class OfficerController extends Controller
     public function update(int $id, Request $request): JsonResponse
     {
         $officer = Officer::findOrFail($id);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'post_id' => 'required|exists:posts,id',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time'
         ]);
+
         try {
+
+            DB::beginTransaction();
+
+            // 1. Update officer
             $officer->update([
                 'name' => $request->name,
                 'post_id' => $request->post_id,
                 "work_start_time" => $request->start_time,
                 "work_end_time" => $request->end_time,
             ]);
+
+            // Local time
+            $today = Carbon::now('Asia/Kathmandu')->toDateString();
+
+            // 2. Cancel activities outside new working hours
+            Activity::where('officer_id', $id)
+                ->whereNotIn('status', ['cancelled', 'completed'])
+                ->where('start_date', '>=', $today)
+                ->where(function ($q) use ($request) {
+                    $q->where('start_time', '<', $request->start_time)
+                        ->orWhere('end_time', '>', $request->end_time);
+                })
+                ->update(['status' => 'cancelled']);
+
+            // 3. Cancel appointments outside new working hours
+            Appointment::where('officer_id', $id)
+                ->whereNotIn('status', ['cancelled', 'completed'])
+                ->where('appointment_date', '>=', $today)
+                ->where(function ($q) use ($request) {
+                    $q->where('start_time', '<', $request->start_time)
+                        ->orWhere('end_time', '>', $request->end_time);
+                })
+                ->update(['status' => 'cancelled']);;
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Officer Updated Successfully'
             ]);
 
         } catch (Exception $e) {
+
+            DB::rollBack();
+
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
             ]);
         }
     }
+
 
     public function assignDays(int $id): View
     {
@@ -154,32 +192,77 @@ class OfficerController extends Controller
         $days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         $existingDays = WorkDay::where('officer_id', $id)->pluck('day_of_week')->toArray() ?? [];
 
-
         return view('Officer.assign_working_days', compact('officer', 'days', 'existingDays'));
     }
 
     public function saveWorkingDays(int $id, Request $request): RedirectResponse
     {
-
         $request->validate([
             'days' => 'required|array',
             'days.*' => 'in:sunday,monday,tuesday,wednesday,thursday,friday,saturday',
         ]);
+
+        DB::beginTransaction();
+
         try {
+
+            // Reset officer days
             WorkDay::where('officer_id', $id)->delete();
 
-            $insertData = [];
+            // Insert new working days
+            $insert = [];
             foreach ($request->days as $day) {
-                $insertData[] = [
+                $insert[] = [
                     'officer_id' => $id,
-                    'day_of_week' => $day,
+                    'day_of_week' => strtolower($day)
                 ];
             }
 
-            WorkDay::insert($insertData);
-            return redirect()->route('officers.index')->with('success', 'Working days updated successfully.');
+            WorkDay::insert($insert);
+
+            // Cancel activities that fall on non-working days
+            $today = Carbon::now('Asia/Kathmandu')->toDateString();
+
+            $activities = Activity::where('officer_id', $id)
+                ->where('end_date', '>=', $today)
+                ->whereNotIn('status', ['cancelled', 'completed'])
+                ->get();
+
+            foreach ($activities as $activity) {
+
+                // Single-day activity
+                if ($activity->start_date == $activity->end_date) {
+
+                    $dayOfActivity = strtolower(Carbon::parse($activity->start_date)->format('l'));
+
+                    // If this day is NOT in working days → cancel
+                    if (!in_array($dayOfActivity, $request->days)) {
+
+                        // Cancel matching appointment
+                        if ($activity->type === 'appointment') {
+                            Appointment::where('officer_id', $id)
+                                ->where('start_date', $activity->start_date)
+                                ->whereNotIn('status', ['cancelled', 'completed'])
+                                ->update(['status' => 'cancelled']);
+                        }
+
+                        // Cancel activity
+                        $activity->update(['status' => 'cancelled']);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('officers.index')
+                ->with('success', 'Working days updated successfully.');
+
         } catch (Exception $e) {
+
+            DB::rollBack();
+
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
+
 }

@@ -103,6 +103,7 @@ class AppointmentController extends Controller
             ];
 
            $this->appointmentService->store($appointment_data);
+
             $data = [
                 'officer_id' => $request->officer_id,
                 'type' => 'appointment',
@@ -169,6 +170,7 @@ class AppointmentController extends Controller
               'appointment_date'=>$request->date,
               'start_time'=>$request->start_time,
               'end_time'=>$request->end_time,
+              'status'=>'active'
           ]);
           return response()->json([
               'status'=>'success',
