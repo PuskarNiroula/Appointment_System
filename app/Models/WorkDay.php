@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @method static insert(array $insertData)
  * @method static where(string $string, int $id)
+ * @method static create(array $array)
  */
 class WorkDay extends Model
 {

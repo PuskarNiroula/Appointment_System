@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             postSeeder::class,
             VisitorsSeeder::class,
             OfficerSeeder::class,
+            WorkingDaysSeeder::class,
+            AppointmentSeeder::class
 
         ]);
 
