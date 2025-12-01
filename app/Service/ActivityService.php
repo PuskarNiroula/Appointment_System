@@ -103,7 +103,7 @@ class ActivityService
             $existStartTime = Carbon::createFromFormat('H:i:s', trim($activity->start_time));
             $existEndTime   = Carbon::createFromFormat('H:i:s', trim($activity->end_time));
 
-            // your original logic (unchanged)
+            //
             if ($newEndDate == $newStartDate) {
 
                 if ($existEndDate == $existStartDate) {

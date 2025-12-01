@@ -1,59 +1,203 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Officer Appointment & Activity Management System
+A Laravel-based web application for managing officers, their working schedules, visitor appointments, and activities.  
+This system ensures proper visitor flow, officer availability tracking, and automatic status updates for appointments and activities.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+---
 
-## About Laravel
+## 🚀 Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 🧑‍💼 Officer Management
+- Create and manage officer profiles
+- Assign posts/roles
+- Define daily working hours
+- Set available working days
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 📅 Appointment Management
+- Visitors can book appointments based on officer availability
+- Only future appointments are shown (today + upcoming)
+- Appointment conflicts are prevented automatically
+- Auto-mark appointments as **completed** when end time passes
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 📋 Activity Management
+- Officers can take **breaks** or **leave**
+- System checks overlap conflicts before approving an activity
+- Automatic status update when activity end time passes
 
-## Learning Laravel
+### 🕒 Working Days
+- Only officers with registered workdays are considered "Available"
+- Officers working today are dynamically detected
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 🧑‍🤝‍🧑 Visitor Management
+- Register new visitors
+- Track visitor history
+- Visitors linked automatically with their appointments
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+[//]: # ()
+[//]: # (### 🔐 Authentication & Roles)
 
-## Laravel Sponsors
+[//]: # (- Admin panel for managing officers & configurations)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+[//]: # (- Officer-level access for viewing schedules and activities)
 
-### Premium Partners
+[//]: # ()
+[//]: # (---)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 🛠️ Tech Stack
 
-## Contributing
+| Component | Technology |
+|----------|------------|
+| Backend  | Laravel 10+ |
+| Database | MySQL / MariaDB |
+| Frontend | Blade Templates (No Vite, No NPM) |
+| UI | Bootstrap |
+| Timezone | Asia/Kathmandu |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 📦 Installation Guide
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 1️⃣ Clone the Project
+```bash
+git clone https://github.com/your-repository/appointment-system.git
+cd appointment-system
+```
 
-## Security Vulnerabilities
+### 2️⃣ Install PHP Dependencies
+```bash
+composer install
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 3️⃣ Configure Environment File
+```bash
+cp .env.example .env
+```
 
-## License
+Update your `.env` values:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```
+APP_NAME="Officer Appointment System"
+APP_ENV=local
+APP_KEY=
+APP_URL=http://localhost
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_db_name
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+
+TIMEZONE=Asia/Kathmandu
+```
+
+Generate key:
+
+```bash
+php artisan key:generate
+```
+
+### 4️⃣ Run Migrations & Seeders
+```bash
+php artisan migrate --seed
+```
+
+(Optional) If you want fresh install:
+```bash
+php artisan migrate:fresh --seed
+```
+
+### 5️⃣ Run the Application
+```bash
+php artisan serve
+```
+
+---
+
+[//]: # (## ⚙️ Scheduler Setup &#40;For Auto-Complete Feature&#41;)
+
+[//]: # ()
+[//]: # (To auto-update expired appointments & activities, add this cron:)
+
+[//]: # ()
+[//]: # (```)
+
+[//]: # (* * * * * php /path-to-your-project/artisan schedule:run >> /dev/null 2>&1)
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # (---)
+
+## 📚 Project Structure (Simplified)
+
+```
+app/
+  Models/
+    Officer.php
+    Appointment.php
+    Activity.php
+    Visitor.php
+    WorkDay.php
+  
+  Http/Controllers/
+    OfficerController.php
+    AppointmentController.php
+    ActivityController.php
+    VisitorController.php
+
+  Services/
+    OfficerService.php
+    AppointmentService.php
+    ActivityService.php
+    VisitorService.php
+
+resources/views/
+  officers/
+  appointments/
+  activities/
+  visitors/
+  layout.blade.php
+```
+
+---
+
+## 🛡️ Validation Rules Summary
+
+### Appointment Rules
+- Officer must exist
+- Appointment must be future-based
+- No overlap with break/leave
+- Follows officer working hours
+
+### Activity Rules
+- Break/Leave cannot overlap with existing activities
+- Must be within officer working hours
+
+---
+
+[//]: # (## ✔️ Automatic Status Update)
+
+[//]: # ()
+[//]: # (The scheduler updates:)
+
+[//]: # (- Activities: from **active → completed** when end_date & end_time pass)
+
+[//]: # (- Appointments: from **active → completed** automatically)
+
+[//]: # ()
+[//]: # (This avoids manual work and ensures clean system records.)
+
+[//]: # ()
+[//]: # (---)
+
+## 🙋‍♂️ Developed By
+**Puskar**
+- BCA Student
+- Laravel Developer
+- Passionate about backend systems
+
+---
+
+## 📄 License
+This project is open-source and free to use.
+
