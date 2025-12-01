@@ -37,13 +37,13 @@ class AppointmentController extends Controller
      * @throws Exception
      */
     public function getAppointment():JsonResponse{
-        $query = Appointment::query();
+        $query = Appointment::get();
         return DataTables::of($query)
             ->addColumn('officer_name', function ($appointment) {
-                return $appointment->officer->name ?? '-';
+                return $appointment->officer->name;
             })
             ->addColumn('visitor_name', function ($appointment) {
-                return $appointment->visitor->name ?? '-';
+                return $appointment->visitor->name ;
             })
             ->addIndexColumn()
             ->make(true);

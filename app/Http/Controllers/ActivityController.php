@@ -8,6 +8,7 @@ use App\Service\OfficerService;
 use App\Service\VisitorService;
 use Carbon\Carbon;
 use Exception;
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -113,6 +114,92 @@ class ActivityController extends Controller
         return view('Activity.update_activity',compact('activity','officers'));
 
     }
+
+
+public function update(int $id, Request $request)
+{
+    $request->validate([
+        'officer_id' => 'required|exists:officers,id',
+        'type' => ['required', 'string', 'in:leave,break'],
+        'start_date' => 'required|date',
+        'end_date' => 'required|date|after_or_equal:start_date',
+        'start_time' => 'required|date_format:H:i:s',
+        'end_time' => ['required', 'date_format:H:i:s', function ($attribute, $value, $fail) use ($request) {
+            if ($request->start_date == $request->end_date) {
+                $start = Carbon::createFromFormat('H:i:s', $request->start_time);
+                $end = Carbon::createFromFormat('H:i:s', $value);
+                if ($end->lte($start)) {
+                    $fail('The end time must be after start time when start date and end date are the same.');
+                }
+            }
+        }],
+    ]);
+
+    $myActivity=Activity::findOrFail($id);
+   if(!$this->service->checkWorkingDay($id,$request->start_date)){
+       return response()->json([
+           'status'=>'error',
+           'message'=>'Officer do not work on this day'
+       ]);
+   }
+   $rep=$this->service->checkWorkingHour($id,$request->start_time,$request->end_time);
+    if($rep['status']=='error')
+       return response()->json($rep);
+
+
+    $now = Carbon::now('Asia/Kathmandu');
+
+    $activities = Activity::where('officer_id', $request->officer_id)
+        ->whereNotIn('status', ['cancelled', 'completed'])
+        ->where(function ($query) use ($now) {
+            $query->where('end_date', '>', $now->toDateString())
+                ->orWhere(function ($q) use ($now) {
+                    $q->where('end_date', $now->toDateString())
+                        ->where('end_time', '>=', $now->toTimeString());
+                });
+        })
+        ->where('id', '!=', $id)
+        ->get();
+
+
+    //condition
+
+    foreach($activities as $activity){
+
+        //single-day checks
+        if($request->start_date==$request->end_date){
+           if(!$this->service->singleDayCheck($request->start_date,$request->start_time,$request->end_time,$activity)){
+               return response()->json([
+                   'status'=>'error',
+                   'message'=>'Officer is busy in this time slot on single day'
+               ]);
+           }
+
+
+        }else{
+            if(!$this->service->multiDayCheck($request->start_date,$request->end_date,$request->start_time,$request->end_time,$activity)){
+                return response()->json([
+                    'status'=>'error',
+                    'message'=>'Officer is busy in this time slot on multi day'
+                ]);
+            }
+        }
+    }
+    $myActivity->update([
+        'officer_id' => $request->officer_id,
+        'type' => $request->type,
+        'start_date' => $request->start_date,
+        'end_date' => $request->end_date,
+        'start_time' => $request->start_time,
+        'end_time' => $request->end_time,
+    ]);
+return response()->json([
+    'status'=>'success',
+    'message'=>'Activity Updated Successfully'
+]);
+}
+
+
 }
 
 

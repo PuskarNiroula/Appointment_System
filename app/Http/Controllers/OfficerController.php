@@ -83,16 +83,24 @@ class OfficerController extends Controller
      */
     public function getOfficers(): JsonResponse
     {
-        $query = Officer::select('id', 'name', 'status', 'post_id', 'work_start_time', 'work_end_time')
-            ->with([
-                'post:id,name',
-                'workDay:officer_id,day_of_week'
-            ]);
+        $query = Officer::get();
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->make(true);
+            ->addColumn('work_day', function ($officer) {
+                $work_days=[];
+                foreach ($officer->workDay as $work_day){
+                    $work_days[]=$work_day->day_of_week;
+                }
+                return implode(', ',$work_days);
+            })
+            // Searchable column: post.name
+          ->addColumn('post',function ($officer){
+              return $officer->post->name;
+            })
+            ->make();
     }
+
 
 
     public function store(Request $request): JsonResponse

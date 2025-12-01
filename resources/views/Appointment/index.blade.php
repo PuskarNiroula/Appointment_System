@@ -108,7 +108,6 @@
                 }
             ];
             initDataTable(".data-table", "{{ route('appointment.api') }}", columns);
-
         });
     </script>
 

@@ -14,6 +14,7 @@
             <div class="card-body">
                 <form>
 
+
                     {{-- Activity Type --}}
                     <div class="mb-3">
                         <label for="type" class="form-label">Activity Type</label>
@@ -70,7 +71,7 @@
                         <label for="start_time" class="form-label">Start Time</label>
                         <input type="time" name="start_time" id="start_time"
                                class="form-control @error('start_time') is-invalid @enderror"
-                               value="{{ $activity->start_time }}">
+                               value="{{\Carbon\Carbon::createFromFormat('H:i:s',$activity->start_time)->format('H:i')}}">
                         <div class="invalid-feedback">
                             @error('start_time') {{ $message }} @enderror
                         </div>
@@ -81,7 +82,7 @@
                         <label for="end_time" class="form-label">End Time</label>
                         <input type="time" name="end_time" id="end_time"
                                class="form-control @error('end_time') is-invalid @enderror"
-                               value="{{ $activity->end_time }}">
+                               value="{{\Carbon\Carbon::createFromFormat('H:i:s',$activity->end_time)->format('H:i')}}">
                         <div class="invalid-feedback">
                             @error('end_time') {{ $message }} @enderror
                         </div>
