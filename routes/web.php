@@ -17,7 +17,7 @@ Route::controller(HomeController::class)->group(function () {
 });
 
 Route::controller(PostController::class)->group(function () {
-    Route::get('/posts', 'index')->name('posts.index');
+    Route::get('/post', 'index')->name('post.index');
     Route::get('/posts/create', 'create')->name('post.create');
     Route::post('/posts/create', 'store')->name('post.store');
     Route::get('/posts/edit/{id}', 'edit')->name('post.edit');
@@ -29,7 +29,7 @@ Route::controller(PostController::class)->group(function () {
 
 
 Route::controller(VisitorController::class)->group(function () {
-    Route::get('/visitors', 'index')->name('visitors.index');
+    Route::get('/visitor', 'index')->name('visitor.index');
     Route::get('/get-visitor-api','getVisitors')->name('visitors.api');
     Route::get('/visitor/{id}/edit','edit')->name('visitor.edit');
     Route::put('/visitor/{visitor}/update','update')->name('visitor.update');
@@ -40,7 +40,7 @@ Route::controller(VisitorController::class)->group(function () {
 });
 
 Route::controller(OfficerController::class)->group(function (){
-    Route::get('/officers','index')->name('officers.index');
+    Route::get('/officer','index')->name('officer.index');
     Route::get('/officers-api','getOfficers')->name('officers.api');
     Route::get('/officer/{id}/edit','edit')->name('officer.edit');
     Route::put('/officer/{officer}/update','update')->name('officer.update');
@@ -54,7 +54,7 @@ Route::controller(OfficerController::class)->group(function (){
 });
 
 Route::controller(ActivityController::class)->group(function (){
-    Route::get('/activities','index')->name('activities.index');
+    Route::get('/activities','index')->name('activity.index');
     Route::get('/activities-api','getActivities')->name('activities.api');
     Route::get('/activity/{id}/edit','edit')->name('activity.edit');
     Route::put('/activity/{activity}/update','update')->name('activity.update');

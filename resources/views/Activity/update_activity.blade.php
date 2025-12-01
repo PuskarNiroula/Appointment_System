@@ -1,37 +1,36 @@
 @extends('Layout.layout')
 
 @section("page-title")
-     Activity
+    Activity
 @endsection
 
 @section('content')
     <div class="d-flex justify-content-center mt-5">
-        <div class="card shadow-sm mb-4" style="width: 60%; min-width: 300px;">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Update Activity</h5>
+        <div class="card shadow-sm w-75 custom-grey-card mb-4">
+
+            {{-- Header --}}
+            <div class="card-header grey-header">
+                <h5 class="mb-0 grey-title">Update Activity</h5>
             </div>
 
             <div class="card-body">
                 <form>
 
-
                     {{-- Activity Type --}}
                     <div class="mb-3">
-                        <label for="type" class="form-label">Activity Type</label>
-                        <select name="type" id="type" class="form-select @error('type') is-invalid @enderror" required>
+                        <label for="type" class="form-label grey-label">Activity Type</label>
+                        <select name="type" id="type" class="form-select modern-input @error('type') is-invalid @enderror" required>
                             <option value="">-- Select Type --</option>
                             <option value="break" {{$activity->type == 'break' ? 'selected' : '' }}>Break</option>
                             <option value="leave" {{ $activity->type == 'leave' ? 'selected' : '' }}>Leave</option>
                         </select>
-                        <div class="invalid-feedback">
-                            @error('type') {{ $message }} @enderror
-                        </div>
+                        <div class="invalid-feedback">@error('type') {{ $message }} @enderror</div>
                     </div>
 
                     {{-- Officer --}}
                     <div class="mb-3">
-                        <label for="officer_id" class="form-label">Officer</label>
-                        <select name="officer_id" id="officer_id" class="form-select @error('officer_id') is-invalid @enderror" required>
+                        <label for="officer_id" class="form-label grey-label">Officer</label>
+                        <select name="officer_id" id="officer_id" class="form-select modern-input @error('officer_id') is-invalid @enderror" required>
                             <option value="">-- Select Officer --</option>
                             @foreach($officers as $officer)
                                 <option value="{{ $officer->id }}" {{ $activity->officer_id== $officer->id ? 'selected' : '' }}>
@@ -39,64 +38,58 @@
                                 </option>
                             @endforeach
                         </select>
-                        <div class="invalid-feedback">
-                            @error('officer_id') {{ $message }} @enderror
-                        </div>
+                        <div class="invalid-feedback">@error('officer_id') {{ $message }} @enderror</div>
                     </div>
 
                     {{-- Start Date --}}
                     <div class="mb-3">
-                        <label for="start_date" class="form-label">Start Date</label>
+                        <label for="start_date" class="form-label grey-label">Start Date</label>
                         <input type="date" name="start_date" id="start_date"
-                               class="form-control @error('start_date') is-invalid @enderror"
+                               class="form-control modern-input @error('start_date') is-invalid @enderror"
                                value="{{ $activity->start_date }}" required>
-                        <div class="invalid-feedback">
-                            @error('start_date') {{ $message }} @enderror
-                        </div>
+                        <div class="invalid-feedback">@error('start_date') {{ $message }} @enderror</div>
                     </div>
 
                     {{-- End Date --}}
                     <div class="mb-3">
-                        <label for="end_date" class="form-label">End Date</label>
+                        <label for="end_date" class="form-label grey-label">End Date</label>
                         <input type="date" name="end_date" id="end_date"
-                               class="form-control @error('end_date') is-invalid @enderror"
+                               class="form-control modern-input @error('end_date') is-invalid @enderror"
                                value="{{ $activity->end_date }}" required>
-                        <div class="invalid-feedback">
-                            @error('end_date') {{ $message }} @enderror
-                        </div>
+                        <div class="invalid-feedback">@error('end_date') {{ $message }} @enderror</div>
                     </div>
 
                     {{-- Start Time --}}
                     <div class="mb-3">
-                        <label for="start_time" class="form-label">Start Time</label>
+                        <label for="start_time" class="form-label grey-label">Start Time</label>
                         <input type="time" name="start_time" id="start_time"
-                               class="form-control @error('start_time') is-invalid @enderror"
+                               class="form-control modern-input @error('start_time') is-invalid @enderror"
                                value="{{\Carbon\Carbon::createFromFormat('H:i:s',$activity->start_time)->format('H:i')}}">
-                        <div class="invalid-feedback">
-                            @error('start_time') {{ $message }} @enderror
-                        </div>
+                        <div class="invalid-feedback">@error('start_time') {{ $message }} @enderror</div>
                     </div>
 
                     {{-- End Time --}}
                     <div class="mb-3">
-                        <label for="end_time" class="form-label">End Time</label>
+                        <label for="end_time" class="form-label grey-label">End Time</label>
                         <input type="time" name="end_time" id="end_time"
-                               class="form-control @error('end_time') is-invalid @enderror"
+                               class="form-control modern-input @error('end_time') is-invalid @enderror"
                                value="{{\Carbon\Carbon::createFromFormat('H:i:s',$activity->end_time)->format('H:i')}}">
-                        <div class="invalid-feedback">
-                            @error('end_time') {{ $message }} @enderror
-                        </div>
+                        <div class="invalid-feedback">@error('end_time') {{ $message }} @enderror</div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Update Activity</button>
+                    {{-- Submit Button --}}
+                    <button type="submit" class="btn btn-primary px-4">Update Activity</button>
+
                 </form>
             </div>
+
         </div>
     </div>
 
 
 
-    <script>
+
+<script>
 
         let csrf_token = `{{ csrf_token() }}`;
 

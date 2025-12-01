@@ -6,51 +6,67 @@
 
 @section('content')
     <div class="d-flex justify-content-center mt-5">
-        <div class="card shadow-sm mb-4" style="width: 60%; min-width: 300px;">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Register New Visitor</h5>
+        <div class="card shadow-sm w-75 custom-grey-card mb-4">
+
+            {{-- Header --}}
+            <div class="card-header grey-header">
+                <h5 class="mb-0 grey-title">Register New Visitor</h5>
             </div>
 
+            {{-- Form --}}
             <div class="card-body">
                 <form action="{{ route('visitor.store') }}" method="POST">
                     @csrf
+
+                    {{-- Name --}}
                     <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
+                        <label for="name" class="form-label grey-label">Name</label>
                         <input
                             type="text"
                             name="name"
                             id="name"
-                            class="form-control @error('name') is-invalid @enderror"
+                            class="form-control modern-input @error('name') is-invalid @enderror"
                             value="{{ old('name') }}"
                             placeholder="Enter name"/>
-                        <label for="mobile_number" class="form-label">Mobile Number</label>
+                        <div class="invalid-feedback">
+                            @error('name') {{ $message }} @enderror
+                        </div>
+                    </div>
+
+                    {{-- Mobile Number --}}
+                    <div class="mb-3">
+                        <label for="mobile_number" class="form-label grey-label">Mobile Number</label>
                         <input
                             type="tel"
                             name="mobile_number"
-                            class="form-control"
                             id="mobile_number"
+                            class="form-control modern-input"
                             placeholder="Enter mobile number"/>
-                        <label for="email" class="form-label">Email</label>
+                    </div>
+
+                    {{-- Email --}}
+                    <div class="mb-3">
+                        <label for="email" class="form-label grey-label">Email</label>
                         <input
                             type="email"
                             name="email"
                             id="email"
-                            class="form-control"
+                            class="form-control modern-input"
                             placeholder="Enter email"/>
-                        <div class="invalid-feedback">
-                            @error('name') {{ $message }} @enderror
-                        </div>
-                        <span class="error text-danger"></span>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">
+                    {{-- Submit Button --}}
+                    <button type="submit" class="btn btn-primary px-4">
                         {{ $buttonText ?? 'Submit' }}
                     </button>
+
                 </form>
             </div>
+
         </div>
     </div>
 @endsection
+
 
 @section('scripts')
     <script>

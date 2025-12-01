@@ -6,59 +6,80 @@
 
 @section('content')
     <div class="d-flex justify-content-center mt-5">
-        <div class="card shadow-sm mb-4" style="width: 60%; min-width: 300px;">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Register New Officer</h5>
+        <div class="card shadow-sm w-75 custom-grey-card mb-4">
+
+            {{-- Header --}}
+            <div class="card-header grey-header">
+                <h5 class="mb-0 grey-title">Register New Officer</h5>
             </div>
 
             <div class="card-body">
-                <form >
+                <form>
+
+                    {{-- Name --}}
                     <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
+                        <label for="name" class="form-label grey-label">Name</label>
                         <input
                             type="text"
                             name="name"
                             id="name"
-                            class="form-control @error('name') is-invalid @enderror"
+                            class="form-control modern-input @error('name') is-invalid @enderror"
                             value="{{ old('name') }}"
-                            placeholder="Enter name" required/>
-                        <label for="mobile_number" class="form-label">Post</label>
-                        @if(!empty($posts))
-                            <select name="post_id" id="post_id" class="form-control" required>
+                            placeholder="Enter name"
+                            required/>
+                        <div class="invalid-feedback">
+                            @error('name') {{ $message }} @enderror
+                        </div>
+                    </div>
+
+                    {{-- Post --}}
+                    <div class="mb-3">
+                        <label for="post_id" class="form-label grey-label">Post</label>
+                        @if(!empty($posts) && $posts->count())
+                            <select name="post_id" id="post_id" class="form-control modern-input" required>
                                 @foreach($posts as $post)
                                     <option value="{{ $post->id }}">{{ $post->name }}</option>
                                 @endforeach
                             </select>
                         @else
-                        <span class="error text-danger">No any Post please create a active post first</span>
+                            <span class="error text-danger">No active posts found. Please create one first.</span>
                         @endif
+                    </div>
 
-                        <label for="email" class="form-label">Work Start Time</label>
+                    {{-- Work Start Time --}}
+                    <div class="mb-3">
+                        <label for="start_time" class="form-label grey-label">Work Start Time</label>
                         <input
                             type="time"
                             name="start_time"
                             id="start_time"
-                            class="form-control @error('start_time') is-invalid @enderror"
-                            placeholder="Enter email" required/>
-                        <span class="error text-danger"></span>
-                        <label for="email" class="form-label">Work End Time</label>
+                            class="form-control modern-input @error('start_time') is-invalid @enderror"
+                            required/>
+                    </div>
+
+                    {{-- Work End Time --}}
+                    <div class="mb-3">
+                        <label for="end_time" class="form-label grey-label">Work End Time</label>
                         <input
                             type="time"
                             name="end_time"
                             id="end_time"
-                            class="form-control @error('end_time') is-invalid @enderror"
-                            placeholder="Enter email" required/>
-                        <span class="error text-danger"></span>
+                            class="form-control modern-input @error('end_time') is-invalid @enderror"
+                            required/>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">
+                    {{-- Submit Button --}}
+                    <button type="submit" class="btn btn-primary px-4">
                         {{ $buttonText ?? 'Submit' }}
                     </button>
+
                 </form>
             </div>
+
         </div>
     </div>
 @endsection
+
 
 @section('scripts')
     <script>

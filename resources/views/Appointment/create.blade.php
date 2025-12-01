@@ -1,14 +1,16 @@
 @extends('Layout.layout')
 
 @section("page-title")
-     Appointments
+    Appointments
 @endsection
 
 @section('content')
     <div class="d-flex justify-content-center mt-5">
-        <div class="card shadow-sm mb-4" style="width: 60%; min-width: 300px;">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Create New Appointment</h5>
+        <div class="card shadow-sm w-75 custom-grey-card mb-4">
+
+            {{-- Header --}}
+            <div class="card-header grey-header">
+                <h5 class="mb-0 grey-title">Create New Appointment</h5>
             </div>
 
             <div class="card-body">
@@ -16,8 +18,8 @@
 
                     {{-- Officer --}}
                     <div class="mb-3">
-                        <label for="officer_id" class="form-label">Officer</label>
-                        <select name="officer_id" id="officer_id" class="form-select @error('officer_id') is-invalid @enderror" required>
+                        <label for="officer_id" class="form-label grey-label">Officer</label>
+                        <select name="officer_id" id="officer_id" class="form-select modern-input @error('officer_id') is-invalid @enderror" required>
                             <option value="">-- Select Officer --</option>
                             @foreach($officers as $officer)
                                 <option value="{{ $officer->id }}" {{ old('officer_id') == $officer->id ? 'selected' : '' }}>
@@ -25,15 +27,13 @@
                                 </option>
                             @endforeach
                         </select>
-                        <div class="invalid-feedback">
-                            @error('officer_id') {{ $message }} @enderror
-                        </div>
+                        <div class="invalid-feedback">@error('officer_id') {{ $message }} @enderror</div>
                     </div>
 
-                    {{-- Officer --}}
+                    {{-- Visitor --}}
                     <div class="mb-3">
-                        <label for="visitor_id" class="form-label">Visitor</label>
-                        <select name="visitor_id" id="visitor_id" class="form-select @error('visitor_id') is-invalid @enderror" required>
+                        <label for="visitor_id" class="form-label grey-label">Visitor</label>
+                        <select name="visitor_id" id="visitor_id" class="form-select modern-input @error('visitor_id') is-invalid @enderror" required>
                             <option value="">-- Select Visitor --</option>
                             @foreach($visitors as $visitor)
                                 <option value="{{ $visitor->id }}" {{ old('visitor_id') == $visitor->id ? 'selected' : '' }}>
@@ -41,50 +41,47 @@
                                 </option>
                             @endforeach
                         </select>
+                        <div class="invalid-feedback">@error('visitor_id') {{ $message }} @enderror</div>
                     </div>
 
-
-
-                    {{-- Start Date --}}
+                    {{-- Date --}}
                     <div class="mb-3">
-                        <label for="date" class="form-label"> Date</label>
+                        <label for="date" class="form-label grey-label">Date</label>
                         <input type="date" name="date" id="date"
-                               class="form-control @error('date') is-invalid @enderror"
+                               class="form-control modern-input @error('date') is-invalid @enderror"
                                value="{{ old('date') }}" required>
-                        <div class="invalid-feedback">
-                            @error('date') {{ $message }} @enderror
-                        </div>
+                        <div class="invalid-feedback">@error('date') {{ $message }} @enderror</div>
                     </div>
 
+                    {{-- Start Time --}}
                     <div class="mb-3">
-                        <label for="start_time" class="form-label">Start Time</label>
+                        <label for="start_time" class="form-label grey-label">Start Time</label>
                         <input type="time" name="start_time" id="start_time"
-                               class="form-control @error('start_time') is-invalid @enderror"
+                               class="form-control modern-input @error('start_time') is-invalid @enderror"
                                value="{{ old('start_time') }}">
-                        <div class="invalid-feedback">
-                            @error('start_time') {{ $message }} @enderror
-                        </div>
+                        <div class="invalid-feedback">@error('start_time') {{ $message }} @enderror</div>
                     </div>
 
+                    {{-- End Time --}}
                     <div class="mb-3">
-                        <label for="end_time" class="form-label">End Time</label>
+                        <label for="end_time" class="form-label grey-label">End Time</label>
                         <input type="time" name="end_time" id="end_time"
-                               class="form-control @error('end_time') is-invalid @enderror"
+                               class="form-control modern-input @error('end_time') is-invalid @enderror"
                                value="{{ old('end_time') }}">
-                        <div class="invalid-feedback">
-                            @error('end_time') {{ $message }} @enderror
-                        </div>
+                        <div class="invalid-feedback">@error('end_time') {{ $message }} @enderror</div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Create Appointment</button>
+                    {{-- Submit Button --}}
+                    <button type="submit" class="btn btn-primary px-4">Create Appointment</button>
+
                 </form>
             </div>
+
         </div>
     </div>
 
 
-
-    <script>
+<script>
 
         let csrf_token = `{{ csrf_token() }}`;
 
