@@ -4,30 +4,31 @@
 
 @section('content')
 
-    <div
-        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
         <a href="{{ route('visitor.create') }}" class="btn btn-primary">Add New Visitor</a>
     </div>
 
     <div class="d-flex justify-content-center mt-4">
-        <div class="card shadow-sm w-75">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Visitors Table</h5>
+        <div class="card shadow-sm w-100 custom-grey-card">
+
+            {{-- Header --}}
+            <div class="card-header" style="background:#f0f0f0; border-radius:12px 12px 0 0;">
+                <h5 class="mb-0" style="color:#444; font-weight:600;">Visitors Table</h5>
             </div>
-            <div class="d-flex justify-content-end mb-3">
-                <div class="input-group" style="max-width: 300px; padding: 10px;">
-        <span class="input-group-text bg-white border-end-0">
-            <i class="bi bi-search text-muted"></i>
-        </span>
+
+            {{-- Search Bar --}}
+            <div class="d-flex justify-content-end mt-3 px-3">
+                <div class="input-group search-box">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
                     <input type="text" id="dataTableSearch" class="form-control border-start-0" placeholder="Search...">
                 </div>
             </div>
 
-
-
-
+            {{-- Table --}}
             <div class="card-body">
-                <table class="table table-striped table-bordered data-table" style="width:100%">
+                <table class="table modern-table data-table">
                     <thead>
                     <tr>
                         <th>#</th>
@@ -41,9 +42,12 @@
                     <tbody></tbody>
                 </table>
             </div>
+
         </div>
     </div>
+
 @endsection
+
 
 @section('scripts')
     <script>

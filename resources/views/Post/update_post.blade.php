@@ -6,36 +6,45 @@
 
 @section('content')
     <div class="d-flex justify-content-center mt-5">
-        <div class="card shadow-sm mb-4" style="width: 60%; min-width: 300px;">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Edit Post</h5>
+        <div class="card shadow-sm custom-grey-card mb-4" style="width: 60%; min-width: 320px;">
+
+            <!-- Header -->
+            <div class="card-header" style="background:#f0f0f0; border-radius:12px 12px 0 0;">
+                <h5 class="mb-0" style="color:#444; font-weight:600;">Edit Post</h5>
             </div>
 
             <div class="card-body">
+
                 <form method="POST">
                     @csrf
+
+                    <!-- Name Input -->
                     <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
+                        <label for="name" class="form-label" style="font-weight:600; color:#555;">Name</label>
+
                         <input
                             type="text"
                             name="name"
                             id="name"
-                            class="form-control @error('name') is-invalid @enderror"
-                            value="{{$post->name}}"
-                            >
+                            class="form-control modern-input @error('name') is-invalid @enderror"
+                            value="{{ $post->name }}"
+                        >
+
                         <div class="invalid-feedback">
                             @error('name') {{ $message }} @enderror
                         </div>
-                        <span class="error text-danger"></span>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary px-4">
                         {{ $buttonText ?? 'Submit' }}
                     </button>
+
                 </form>
             </div>
         </div>
     </div>
+
 
     <script>
         let csrf_token = `{{csrf_token()}}`;

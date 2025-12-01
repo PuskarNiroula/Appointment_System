@@ -6,25 +6,37 @@
 
 @section('content')
     <div class="d-flex justify-content-center mt-5">
-        <div class="card shadow-sm mb-4" style="width: 60%; min-width: 300px;">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Update Officer</h5>
+        <div class="card shadow-sm w-75 custom-grey-card mb-4">
+
+            {{-- Header --}}
+            <div class="card-header grey-header">
+                <h5 class="mb-0 grey-title">Update Officer</h5>
             </div>
 
             <div class="card-body">
-                <form >
+                <form>
+
+                    {{-- Name --}}
                     <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
+                        <label for="name" class="form-label grey-label">Name</label>
                         <input
                             type="text"
                             name="name"
                             id="name"
-                            class="form-control @error('name') is-invalid @enderror"
-                            value="{{$officer->name}}"
-                            placeholder="Enter name" required/>
-                        <label for="post_id" class="form-label">Post</label>
+                            class="form-control modern-input @error('name') is-invalid @enderror"
+                            value="{{ $officer->name }}"
+                            placeholder="Enter name"
+                            required/>
+                        <div class="invalid-feedback">
+                            @error('name') {{ $message }} @enderror
+                        </div>
+                    </div>
+
+                    {{-- Post --}}
+                    <div class="mb-3">
+                        <label for="post_id" class="form-label grey-label">Post</label>
                         @if(!empty($posts) && $posts->count())
-                            <select name="post_id" id="post_id" class="form-control" required>
+                            <select name="post_id" id="post_id" class="form-control modern-input" required>
                                 @foreach($posts as $post)
                                     <option value="{{ $post->id }}"
                                         {{ $officer->post_id == $post->id ? 'selected' : '' }}>
@@ -35,36 +47,44 @@
                         @else
                             <span class="error text-danger">No posts found. Please create an active post first.</span>
                         @endif
+                    </div>
 
-
-                        <label for="start_time" class="form-label">Work Start Time</label>
+                    {{-- Work Start Time --}}
+                    <div class="mb-3">
+                        <label for="start_time" class="form-label grey-label">Work Start Time</label>
                         <input
                             type="time"
                             name="start_time"
                             id="start_time"
-                            class="form-control @error('start_time') is-invalid @enderror"
-                            value="{{\Carbon\Carbon::parse($officer->work_start_time)->format('H:i')}}"
-                            placeholder="Enter email" required/>
-                        <span class="error text-danger"></span>
-                        <label for="end_time" class="form-label">Work End Time</label>
+                            class="form-control modern-input @error('start_time') is-invalid @enderror"
+                            value="{{ \Carbon\Carbon::parse($officer->work_start_time)->format('H:i') }}"
+                            required/>
+                    </div>
+
+                    {{-- Work End Time --}}
+                    <div class="mb-3">
+                        <label for="end_time" class="form-label grey-label">Work End Time</label>
                         <input
                             type="time"
                             name="end_time"
                             id="end_time"
-                            class="form-control @error('end_time') is-invalid @enderror"
-                            value="{{\Carbon\Carbon::parse($officer->work_end_time)->format('H:i')}}"
-                            placeholder="Enter email" required/>
-                        <span class="error text-danger"></span>
+                            class="form-control modern-input @error('end_time') is-invalid @enderror"
+                            value="{{ \Carbon\Carbon::parse($officer->work_end_time)->format('H:i') }}"
+                            required/>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">
+                    {{-- Submit Button --}}
+                    <button type="submit" class="btn btn-primary px-4">
                         {{ $buttonText ?? 'Submit' }}
                     </button>
+
                 </form>
             </div>
+
         </div>
     </div>
 @endsection
+
 
 @section('scripts')
     <script>

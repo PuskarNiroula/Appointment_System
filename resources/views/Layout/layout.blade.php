@@ -13,6 +13,28 @@
 
 
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <style>
+        .sidebar a {
+            display: block;
+            padding: 10px 20px;
+            color: #333;
+            text-decoration: none;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #f0f0f0;
+            color: #0d6efd;
+        }
+
+        .sidebar a.active {
+            background-color: #e7f1ff;
+            color: #0d6efd;
+            border-left-color: #0d6efd;
+            font-weight: 500;
+        }
+    </style>
 
 </head>
 
@@ -26,13 +48,14 @@
             <h4 class="text-primary fw-bold">Appointment System</h4>
         </div>
 
+
         <nav class="mt-3">
-            <a href="/dashboard">Dashboard</a>
-            <a href="/posts">Posts</a>
-            <a href="/visitors">Visitors</a>
-            <a href="/officers">Officers</a>
-            <a href="{{route('appointment.index')}}">Appointment</a>
-            <a href="{{route('activities.index')}}">Activities</a>
+            <a href="{{ route('dashboard') }}" class="{{ str_contains(Route::currentRouteName(), 'dashboard') ? 'active' : '' }}">Dashboard</a>
+            <a href="{{ route('post.index') }}" class="{{ str_contains(Route::currentRouteName(), 'post.') ? 'active' : '' }}">Posts</a>
+            <a href="{{ route('visitor.index') }}" class="{{ str_contains(Route::currentRouteName(), 'visitor.') ? 'active' : '' }}">Visitors</a>
+            <a href="{{ route('officer.index') }}" class="{{ str_contains(Route::currentRouteName(), 'officer.') ? 'active' : '' }}">Officers</a>
+            <a href="{{ route('appointment.index') }}" class="{{ str_contains(Route::currentRouteName(), 'appointment.') ? 'active' : '' }}">Appointment</a>
+            <a href="{{ route('activity.index') }}" class="{{ str_contains(Route::currentRouteName(), 'activity.') ? 'active' : '' }}">Activities</a>
         </nav>
     </aside>
 
@@ -44,8 +67,8 @@
             <h5 class="fw-semibold mb-0">@yield('page-title')</h5>
 
             <span class="text-secondary">
-                    Hello, {{ auth()->user()->name ?? 'User' }}
-                </span>
+                Welcome, Puskar!
+             </span>
         </header>
 
         <div class="p-4">
