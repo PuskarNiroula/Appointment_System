@@ -114,14 +114,11 @@
         $(document).ready(function () {
 
             let columns = [
-                {data: 'DT_RowIndex', name: 'id', orderable: false, searchable: false},
+                {data: 'DT_RowIndex', name: 'id',orderable:false, searchable:false},
                 {data: 'name', name: 'name'},
                 {
                     data: 'post',
                     name: 'post',
-                    render: function(data, type, row) {
-                        return row.post ? row.post.name : '-';
-                    }
                 },
                 {data: "working_hour", name: "working_hour",
                     render: function(data, type, row) {
@@ -132,22 +129,23 @@
                     data: "work_day",
                     name: "work_day",
                     render: function(data, type, row) {
-                        if (!row.work_day || !Array.isArray(row.work_day) || row.work_day.length === 0) {
-                            return '-';
-                        }
-                        let days = row.work_day.map(function(d) {
-                            return d.day_of_week.charAt(0).toUpperCase() + d.day_of_week.slice(1);
+                        if (!data) return '-';
+
+                        // Split the string by comma, trim spaces, capitalize first letter
+                        let days = data.split(',').map(function(d) {
+                            d = d.trim();
+                            return d.charAt(0).toUpperCase() + d.slice(1);
                         });
+
                         return days.join(', ');
                     }
                 },
+
 
                 {data: 'status', name: 'status'},
                 {
                     data: 'status',
                     name: 'action',
-                    orderable: false,
-                    searchable: false,
                     render: function (data, type, row) {
 
                         // Common options — always available
