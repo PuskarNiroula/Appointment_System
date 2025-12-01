@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\AutoCompleteRecords;
+use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
