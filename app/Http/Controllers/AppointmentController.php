@@ -19,17 +19,15 @@ use Yajra\DataTables\DataTables;
 
 class AppointmentController extends Controller
 {
-   protected AppointmentService $service;
    protected VisitorService $visitorService;
     protected ActivityService $activityService;
     protected OfficerService $officerService;
     protected AppointmentService $appointmentService;
     public function __construct(){
-        $this->service=new AppointmentService();
-        $this->visitorService=new VisitorService();
-        $this->activityService=new ActivityService();
-        $this->officerService=new OfficerService();
-        $this->appointmentService=new AppointmentService();
+        $this->visitorService=app(VisitorService::class);
+        $this->activityService=app(ActivityService::class);
+        $this->officerService=app(OfficerService::class);
+        $this->appointmentService=app(AppointmentService::class);
     }
     public function index():View{
         return view('Appointment.index');
@@ -39,7 +37,7 @@ class AppointmentController extends Controller
      * @throws Exception
      */
     public function getAppointment():JsonResponse{
-        $query = Appointment::orderBy('status')->orderBy('appointment_date','desc')->orderBy('start_time')->get();
+        $query =$this->appointmentService->getQuery();
         return DataTables::of($query)
             ->addColumn('officer_name', function ($appointment) {
                 return $appointment->officer->name;
@@ -66,7 +64,6 @@ class AppointmentController extends Controller
             'start_time'=>'required|date_format:H:i:s',
             'end_time'=>'required|date_format:H:i:s|after:start_time'
         ]);
-
 
         try{
             if($request->date<$now->toDateString()){
@@ -137,26 +134,43 @@ class AppointmentController extends Controller
         }
     }
   public function cancelAppointment(int $id):JsonResponse{
-        if($this->service->cancelAppointment($id)){
-             return response()->json([
-                 'status'=>'success',
-                 'message'=>'Appointment Cancelled Successfully'
-             ]);
-         }else{
-             return response()->json([
-                 'status'=>'error',
-                 'message'=>'Appointment Cancel Failed'
-             ]);
-         }
+        DB::beginTransaction();
+        try {
+            $appointment = $this->appointmentService->getById($id);
+            $data=[
+                'officer_id'=>$appointment->officer_id,
+                'appointment_date'=>$appointment->appointment_date,
+                'start_time'=>$appointment->start_time,
+                'end_time'=>$appointment->end_time,
+            ];
+            $this->appointmentService->cancelAppointment($id);
+            $this->activityService->cancelActivityRelatedToAppointment($data);
+            DB::commit();
+            return response()->json([
+                'status'=>'success',
+                'message'=>'Appointment Cancelled Successfully'
+            ]);
+
+        }catch (Exception $e){
+            DB::rollBack();
+            return response()->json([
+                'status'=>'error',
+                'message'=>$e->getMessage()
+            ]);
+        }
   }
   public function edit(int $id):View{
-        $appointment=Appointment::findOrFail($id);
-        $officers=$this->officerService->getWorkingOfficers();
-        $visitors=$this->visitorService->getActiveVisitors();
-        return view('Appointment.update',compact('appointment','officers','visitors'));
+        try {
+            $appointment = $this->appointmentService->getById($id);
+            $officers = $this->officerService->getWorkingOfficers();
+            $visitors = $this->visitorService->getActiveVisitors();
+            return view('Appointment.update', compact('appointment', 'officers', 'visitors'));
+        }catch (Exception){
+           abort(404);
+        }
   }
   public function update(int $id,Request $request):JsonResponse{
-        $app=Appointment::findOrFail($id);
+
       $request->validate([
           'officer_id'=>'required|exists:officers,id',
           'visitor_id'=>'required|exists:visitors,id',
@@ -165,32 +179,16 @@ class AppointmentController extends Controller
           'end_time'=>'required|date_format:H:i:s|after:start_time'
       ]);
 
-      try{
-          Visitor::findOrFail($request->visitor_id);
-          $appointments=Appointment::where('visitor_id',$id)
-              ->where('appointment_date',$request->date)
-              ->whereNotIn('status',['cancelled','completed'])
-              ->where('id','!=',$id)
-              ->get();
-
-              foreach ($appointments as $appointment) {
-                  if ($appointment->start_time <= $request->start_time && $appointment->end_time > $request->end_time) {
-                      return response()->json([
-                          'status' => 'error',
-                          'message' => 'Visitor is busy in this time slot'
-                      ]);
-                  } elseif ($appointment->start_time < $request->end_time && $appointment->end_time >= $request->start_time) {
-                      return response()->json([
-                          'status' => 'error',
-                          'message' => 'Visitor is busy in this time slot'
-                      ]);
-                  }
-              }
-
+      try {
+          $app = $this->appointmentService->getById($id);
+          if ($this->visitorService->checkIfAvailable($request->visitor_id, $request->date, $request->start_time, $request->end_time)) {
+              return response()->json([
+                  'status' => 'error',
+                  'message' => 'Visitor is not available on this time slot'
+              ]);
+          }
           if(!$this->activityService->checkWorkingDay($request->officer_id,$request->date)){
-
               $day = Carbon::createFromFormat('Y-m-d', $request->date)->format('l');
-
               return response()->json([
                   'status'=>'error',
                   'message'=>'Officer do not work on '.$day.'.'
@@ -207,19 +205,8 @@ class AppointmentController extends Controller
               ->where('start_time',$app->start_time)
               ->where('end_time',$app->end_time)
               ->first();
-          $now = Carbon::now('Asia/Kathmandu');
 
-          $activities = Activity::where('officer_id', $request->officer_id)
-              ->whereNotIn('status', ['cancelled', 'completed'])
-              ->where(function ($query) use ($now) {
-                  $query->where('end_date', '>', $now->toDateString())
-                      ->orWhere(function ($q) use ($now) {
-                          $q->where('end_date', $now->toDateString())
-                              ->where('end_time', '>=', $now->toTimeString());
-                      });
-              })
-              ->where('id', '!=', $a->id)
-              ->get();
+          $activities=  $this->activityService->getFutureActivitiesOfOfficerForUpdate($request->officer_id,$a->id);
 
               foreach($activities as $activity) {
                   if (!$this->activityService->singleDayCheck($request->date, $request->date, $request->end_time, $activity)) {

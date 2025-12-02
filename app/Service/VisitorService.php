@@ -105,4 +105,14 @@ class VisitorService
     public function getAllVisitors(){
         return Visitor::all();
     }
+
+    /**
+     * @throws Exception
+     */
+    public function getById(int $id){
+        $visitor=Visitor::find($id);
+        if(!$visitor)
+            throw new Exception("Visitor Not Found");
+        return $visitor;
+    }
 }

@@ -3,6 +3,7 @@ namespace App\Service;
 
 use App\Models\Activity;
 use App\Models\Appointment;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class AppointmentService{
@@ -25,9 +26,10 @@ class AppointmentService{
     }
 
     public function cancelAppointment(int $id):bool{
-        if(  Appointment::find($id)->exists()){
+        try{
+
             DB::beginTransaction();
-           $appointment= Appointment::find($id);
+           $appointment= $this->getById($id);;
             $appointment->update(['status'=>'cancelled']);
             Activity::where('officer_id',$appointment->officer_id)
                 ->where('start_date',$appointment->appointment_date)
@@ -37,8 +39,10 @@ class AppointmentService{
                 ->update(['status'=>'cancelled']);
             DB::commit();
             return true;
+        }catch (Exception $e){
+            DB::rollBack();
+            return false;
         }
-        return false;
     }
     public function store(array $data): void
     {
@@ -80,7 +84,6 @@ class AppointmentService{
             DB::commit();
         }
 
-        // Finally create the new appointment
         Appointment::create($data);
     }
 
@@ -91,6 +94,33 @@ class AppointmentService{
             ->orderBy('appointment_date','desc')
             ->orderBy('start_time');
     }
+    public function getQuery(){
+        return Appointment::orderBy('status')->orderBy('appointment_date','desc')->orderBy('start_time');
+    }
+    public function cancel(int $id):bool{
+
+        try{
+            $appointment= $this->getById($id);;
+            $appointment->update(['status'=>'cancelled']);
+           return true;
+        }catch (Exception $e){
+           return false;
+        }
+    }
+
+
+
+    /**
+     * @throws Exception
+     */
+    public function getById(int $id){
+        $appointment=Appointment::find($id);
+        if(!$appointment)
+            throw new Exception("Appointment Not Found");
+        return $appointment;
+    }
+
+
 
 
 }
