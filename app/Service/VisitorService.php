@@ -101,11 +101,6 @@ class VisitorService
         return Visitor::where('status','active')->get();
     }
 
-
-    public function getAllVisitors(){
-        return Visitor::all();
-    }
-
     /**
      * @throws Exception
      */
@@ -114,5 +109,8 @@ class VisitorService
         if(!$visitor)
             throw new Exception("Visitor Not Found");
         return $visitor;
+    }
+    public function getInactiveVisitorCount(){
+        return Visitor::where('status','inactive')->count();
     }
 }

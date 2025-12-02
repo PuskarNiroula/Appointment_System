@@ -144,4 +144,8 @@ class OfficerService
     public function getOfficerByPostId(int $postId):bool{
        return Officer::where('post_id',$postId)->exists();
     }
+
+    public function getActiveOfficerCount(){
+        return Officer::where('status','active')->count();
+    }
 }

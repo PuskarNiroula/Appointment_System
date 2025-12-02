@@ -120,6 +120,19 @@ class AppointmentService{
         return $appointment;
     }
 
+    public function getActiveAppointmentCount(){
+        return Appointment::where('status','active')->count();
+    }
+    public function getCanceledAppointmentCount(){
+        return Appointment::where('status','cancelled')->count();
+    }
+    public function getRecentCompletedAppointments(){
+        return Appointment::where('status','completed')
+            ->orderBy('appointment_date','desc')
+            ->limit(10)
+            ->get();
+    }
+
 
 
 

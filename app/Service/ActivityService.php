@@ -304,6 +304,16 @@ public function getFutureActivitiesOfOfficerForUpdate($officer_id, int $id)
 
 }
 
+public function getFutureActivities(){
+    return Activity::where('status','active')
+        ->where('start_date', '>=', now('Asia/Kathmandu')->toDateString())
+        ->orderBy('start_date')
+        ->limit(10)
+        ->get();
+
+
+}
+
 
 
 

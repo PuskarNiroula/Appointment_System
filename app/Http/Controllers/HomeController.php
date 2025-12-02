@@ -3,30 +3,32 @@
 namespace App\Http\Controllers;
 
 
-use App\Models\Activity;
-use App\Models\Appointment;
-use App\Models\Officer;
-use App\Models\Visitor;
+use App\Service\ActivityService;
+use App\Service\AppointmentService;
+use App\Service\OfficerService;
+use App\Service\VisitorService;
+use Illuminate\View\View;
 
 class HomeController extends Controller
 {
+    protected AppointmentService $appointmentService;
+    protected VisitorService $visitorService;
+    protected OfficerService $officerService;
+    protected ActivityService $activityService;
+    public function __construct(){
+        $this->appointmentService=app(AppointmentService::class);
+        $this->visitorService=app(VisitorService::class);
+        $this->officerService=app(OfficerService::class);
+        $this->activityService=app(ActivityService::class);
+    }
 
-    public function dashboard(){
-        $active_appointments=Appointment::where('status','active')->count();
-        $cancelled_appointments=Appointment::where('status','cancelled')->count();
-        $active_officers=Officer::where('status','active')->count();
-        $inactive_visitors=Visitor::where('status','inactive')->count();
-        $upcoming_activities=Activity::where('status','active')
-            ->where(
-                'start_date','>=',now('Asia/Kathmandu')->toDateString()
-            )
-            ->orderBy('start_date')
-            ->limit(10)
-            ->get();
-        $recent_appointments=Appointment::where('status','completed')
-            ->limit(10)
-            ->orderBy('appointment_date','desc')
-            ->get();
+    public function dashboard():View{
+        $active_appointments=$this->appointmentService->getActiveAppointmentCount();
+        $cancelled_appointments=$this->appointmentService->getCanceledAppointmentCount();
+        $active_officers=$this->officerService->getActiveOfficerCount();
+        $inactive_visitors=$this->visitorService->getInactiveVisitorCount();
+        $upcoming_activities=$this->activityService->getFutureActivities();
+        $recent_appointments=$this->appointmentService->getRecentCompletedAppointments();
         return view('dashboard',compact([
             'active_appointments',
             'cancelled_appointments',
