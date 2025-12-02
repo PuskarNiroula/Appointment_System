@@ -11,6 +11,7 @@ use Exception;
 use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Yajra\DataTables\DataTables;
 
@@ -116,7 +117,7 @@ class ActivityController extends Controller
     }
 
 
-public function update(int $id, Request $request)
+public function update(int $id, Request $request):JsonResponse
 {
     $request->validate([
         'officer_id' => 'required|exists:officers,id',
@@ -197,6 +198,25 @@ return response()->json([
     'status'=>'success',
     'message'=>'Activity Updated Successfully'
 ]);
+}
+
+public function cancel(int $id){
+        $activity=Activity::findOrFail($id);
+         DB::beginTransaction();
+        try{
+            if($activity->type=='appointment'){
+                $this->appointmentService->cancelAppointment($activity->appointment_id);
+            }
+
+
+             $response=$this->service->cancel($id);
+                return response()->json($response);
+            }catch (Exception $e){
+            return response()->json([
+                'status'=>'error',
+                'message'=>$e->getMessage()
+            ]);
+        }
 }
 
 

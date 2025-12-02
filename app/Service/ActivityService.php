@@ -266,6 +266,14 @@ return [
 ];
 }
 
+public function cancel(Activity $activity):array{
+            $activity->update(['status'=>'cancelled']);
+            return [
+                'status'=>'success',
+                'message'=>'Activity cancelled successfully'
+            ];
+}
+
 
 
 
