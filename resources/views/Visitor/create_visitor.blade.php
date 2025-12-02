@@ -109,7 +109,7 @@
                                     response.message||"Visitor registered successfully",
                                     'success'
                                 ).then((result) => {
-                                    window.location.href = "{{ route('visitors.index') }}";
+                                    window.location.href = "{{ route('visitor.index') }}";
                                 });
                             }else{
                                 Swal.fire(

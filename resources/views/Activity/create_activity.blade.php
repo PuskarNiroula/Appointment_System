@@ -79,7 +79,7 @@
 
                     {{-- Buttons --}}
                     <button type="submit" class="btn btn-primary px-4">{{ $buttonText ?? 'Create Activity' }}</button>
-                    <a href="{{ route('activities.index') }}" class="btn btn-secondary px-4">Back</a>
+                    <a href="{{ route('activity.index') }}" class="btn btn-secondary px-4">Back</a>
 
                 </form>
             </div>
