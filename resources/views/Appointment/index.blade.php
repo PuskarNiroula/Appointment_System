@@ -94,7 +94,7 @@
                 {data: 'appointment_date', name: 'appointment_date'},
                 {data: 'start_time', name: 'start_time'},
                 {data: 'end_time', name: 'end_time'},
-                {data: 'status', name: 'status', orderable: false, searchable: false},
+                {data: 'status', name: 'status'},
                 {
                     data: 'status',
                     name: 'action',

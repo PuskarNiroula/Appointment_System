@@ -153,11 +153,9 @@
                     render: function (data, type, row) {
 
                         // Common options — always available
-                        let editOption = `
-            <li>
-                <a class="dropdown-item" href="/officer/${row.id}/edit">Edit</a>
-            </li>
-        `;
+
+
+
 
                         // Activate/Deactivate
                         let statusOption = row.status === 'active'
@@ -166,6 +164,9 @@
 
                         // These two should only appear if ACTIVE
                         let extraOptions = `
+            <li>
+                <a class="dropdown-item" href="/officer/${row.id}/edit">Edit</a>
+            </li>
             <li>
                 <a class="dropdown-item" href="/officer/${row.id}/working-days">Assign Working Days</a>
             </li>
@@ -180,8 +181,6 @@
                 Actions
             </button>
             <ul class="dropdown-menu">
-
-                ${editOption}
                 ${statusOption}
 
                 ${row.status === 'active' ? extraOptions : ''}

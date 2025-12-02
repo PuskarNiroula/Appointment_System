@@ -61,7 +61,7 @@ use Yajra\DataTables\DataTables;
         $request->validate([
             'name' => 'required|string|max:255',
             'email'=>'required|email|unique:visitors,email',
-            'mobile_number'=>'required|numeric|unique:visitors,mobile_num',
+            'mobile_number'=>'required|numeric|digits:10|unique:visitors,mobile_num',
         ]);
         try{
             Visitor::create([
@@ -94,7 +94,7 @@ use Yajra\DataTables\DataTables;
             'email' => [
                 'required', 'email', 'unique:visitors,email,' . $visitor->id
             ],
-            'mobile_number' => ['required','numeric','unique:visitors,mobile_num,'.$visitor->id],
+            'mobile_number' => ['required','digits:10','numeric','unique:visitors,mobile_num,'.$visitor->id],
         ]);
         try {
             $visitor->update([

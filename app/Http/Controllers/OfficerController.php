@@ -83,7 +83,7 @@ class OfficerController extends Controller
      */
     public function getOfficers(): JsonResponse
     {
-        $query = Officer::get();
+        $query = Officer::with('workDay')->withCount('workDay')->orderByDesc('work_day_count')->get();
 
         return DataTables::of($query)
             ->addIndexColumn()
@@ -99,6 +99,30 @@ class OfficerController extends Controller
               return $officer->post->name;
             })
             ->make();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function viewAppointments(int $id): JsonResponse
+    {
+        $query =Appointment::where('officer_id',$id)
+            ->orderBy('status')
+            ->orderBy('appointment_date','desc')
+            ->orderBy('start_time')
+            ->get();
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('visitor_name', function ($appointment) {
+                return $appointment->visitor->name;
+            })
+            ->make(true);
+    }
+
+    public function appointments(int $id): View
+    {
+        $officer=Officer::findOrFail($id);
+        return view('Officer.view_appointment',compact('officer'));
     }
 
 
@@ -245,15 +269,13 @@ class OfficerController extends Controller
 
                     // If this day is NOT in working days → cancel
                     if (!in_array($dayOfActivity, $request->days)) {
-
                         // Cancel matching appointment
                         if ($activity->type === 'appointment') {
                             Appointment::where('officer_id', $id)
-                                ->where('start_date', $activity->start_date)
+                                ->where('appointment_date', $activity->start_date)
                                 ->whereNotIn('status', ['cancelled', 'completed'])
                                 ->update(['status' => 'cancelled']);
                         }
-
                         // Cancel activity
                         $activity->update(['status' => 'cancelled']);
                     }
@@ -262,14 +284,14 @@ class OfficerController extends Controller
 
             DB::commit();
 
-            return redirect()->route('officers.index')
+            return redirect()->route('officer.index')
                 ->with('success', 'Working days updated successfully.');
 
         } catch (Exception $e) {
 
             DB::rollBack();
 
-            return redirect()->back()->with('error', $e->getMessage());
+            return redirect()->back()->withErrors($e->getMessage());
         }
     }
 

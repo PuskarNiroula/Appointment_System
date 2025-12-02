@@ -50,6 +50,8 @@ Route::controller(OfficerController::class)->group(function (){
     Route::post('/officer/create','store')->name('officer.store');
     Route::get('/officer/{id}/working-days','assignDays')->name('officer.assignDays');
     Route::Post('/officer/{id}/working-days','saveWorkingDays')->name('officer.saveWorkingDays');
+    Route::get('/officer/{officer}/view-appointments','viewAppointments')->name('officer.appointment.api');
+    Route::get('/officer/{officer}/appointments','appointments')->name('officer.appointments');
 
 });
 
