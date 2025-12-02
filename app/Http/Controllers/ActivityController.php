@@ -236,6 +236,10 @@ public function cancel(int $id){
                 'message'=>$e->getMessage()
             ]);
         }
+        return response()->json([
+            'status'=>'error',
+            'message'=>'Activity cancellation failed'
+        ]);
 }
 
 

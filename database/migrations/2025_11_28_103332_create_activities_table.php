@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('officer_id');
             $table->date('start_date');
             $table->date('end_date');
-            $table->enum('status',['active','cancelled'])->default('active');
+            $table->enum('status',['active','cancelled','completed'])->default('active');
             $table->time('start_time');
             $table->time('end_time');
             $table->foreign('officer_id')->references('id')->on('officers');

@@ -22,13 +22,27 @@ class AppointmentSeeder extends Seeder
         $i=0;
         foreach ($officer_ids as $id) {
 
-            Appointment::create([
-                'visitor_id'=>$visitor_ids[$i++],
-                'officer_id'=>$id,
-                'appointment_date'=>$date,
-                'start_time'=>'13:00:00',
-                'end_time'=>'15:00:00',
-            ]);
+            if($i==2){
+
+                Appointment::create([
+                    'visitor_id'=>$visitor_ids[$i++],
+                    'officer_id'=>$id,
+                    'appointment_date'=>$date,
+                    'start_time'=>'13:00:00',
+                    'end_time'=>'15:00:00',
+                    'status'=>'deactivated'
+                ]);
+
+            }else {
+
+                Appointment::create([
+                    'visitor_id' => $visitor_ids[$i++],
+                    'officer_id' => $id,
+                    'appointment_date' => $date,
+                    'start_time' => '13:00:00',
+                    'end_time' => '15:00:00',
+                ]);
+            }
             Activity::create([
                 'type'=>'appointment',
                 'officer_id'=>$id,
