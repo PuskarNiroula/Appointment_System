@@ -62,7 +62,7 @@ Route::controller(ActivityController::class)->group(function (){
     Route::patch('/activity/{activity}/deactivate','deactivate')->name('activity.deactivate');
     Route::get('/activity/create','create')->name('activity.create');
     Route::post('/activity/create','store')->name('activity.store');
-    Route::get('/activity/{activity}/cancel','cancel')->name('activity.cancel');
+    Route::patch('/activity/{activity}/cancel','cancel')->name('activity.cancel');
 });
 
 Route::controller(AppointmentController::class)->group(function (){

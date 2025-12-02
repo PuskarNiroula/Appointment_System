@@ -3,15 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Activity;
+use App\Models\Appointment;
 use App\Service\ActivityService;
+use App\Service\AppointmentService;
 use App\Service\OfficerService;
 use App\Service\VisitorService;
 use Carbon\Carbon;
 use Exception;
-use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Yajra\DataTables\DataTables;
 
@@ -20,6 +20,7 @@ class ActivityController extends Controller
     protected ActivityService $service;
     protected VisitorService $visitorService;
     protected OfficerService $officerService;
+    protected AppointmentService $appointmentService;
 
 
 
@@ -27,6 +28,7 @@ class ActivityController extends Controller
         $this->service = new ActivityService();
         $this->visitorService=new VisitorService();
         $this->officerService=new OfficerService();
+        $this->appointmentService=new AppointmentService();
 
     }
     public function index(): View
@@ -202,16 +204,33 @@ return response()->json([
 
 public function cancel(int $id){
         $activity=Activity::findOrFail($id);
-         DB::beginTransaction();
+
         try{
-            if($activity->type=='appointment'){
-                $this->appointmentService->cancelAppointment($activity->appointment_id);
+            if($activity->type=='appointment') {
+                $appointment_id = Appointment::where('officer_id', $activity->officer_id)
+                    ->where('appointment_date', $activity->start_date)
+                    ->whereNotIn('status', ['cancelled', 'completed'])
+                    ->where('appointment_date', '>=', $activity->end_date)
+                    ->where('start_time', '<=', $activity->start_time)
+                    ->where('end_time', '>=', $activity->end_time)
+                    ->first()->id;
+
+                if ($this->appointmentService->cancelAppointment($appointment_id)) {
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Activity Cancelled Successfully'
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Activity Cancel Failed'
+                    ]);
+                }
+            }else{
+                $activity->update(['status'=>'cancelled']);
             }
 
-
-             $response=$this->service->cancel($id);
-                return response()->json($response);
-            }catch (Exception $e){
+        }catch (Exception $e){
             return response()->json([
                 'status'=>'error',
                 'message'=>$e->getMessage()
