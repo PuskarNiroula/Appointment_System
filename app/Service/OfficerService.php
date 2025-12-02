@@ -102,5 +102,46 @@ class OfficerService
     public function getAllOfficers(){
         return Officer::all();
     }
+    public function findOrFail(int $id){
+        return Officer::findOrFail($id);
+    }
+    public function getQuery(){
+        return Officer::with('workDay')->withCount('workDay')->orderByDesc('work_day_count');
 
+    }
+    public function createOfficer($data):array{
+        try {
+            Officer::create([
+                'name' => $data->name,
+                'post_id' => $data->post_id,
+                "work_start_time" => $data->start_time,
+                "work_end_time" => $data->end_time,
+            ]);
+          return ['status'=>'success'];
+        }catch (Exception $e){
+         return ['status'=>'error',
+             'message'=>$e->getMessage()
+         ];
+        }
+    }
+    public function updateOfficer(int $id, array $data):array{
+       try{
+           $this->findOrFail($id)->update([
+               'name' => $data['name'],
+               'post_id' => $data['post_id'],
+               "work_start_time" => $data['start_time'],
+               "work_end_time" => $data['end_time']
+           ]);
+         return ['status'=>'success'];
+       }
+       catch (Exception $e){
+           return ['status'=>'error',
+               'message'=>$e->getMessage()
+           ];
+       }
+    }
+
+    public function getOfficerByPostId(int $postId):bool{
+       return Officer::where('post_id',$postId)->exists();
+    }
 }

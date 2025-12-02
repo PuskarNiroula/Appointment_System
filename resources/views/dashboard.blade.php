@@ -79,10 +79,10 @@
                                 @if($activity->start_date == $activity->end_date)
                                     {{ $activity->start_date }}
                                 @else
-                                    {{ $activity->start_date }} - {{ $activity->end_date }}
+                                    {{ $activity->start_date }} <br/> {{ $activity->end_date }}
                                 @endif
                             </td>
-                            <td>{{ $activity->start_time }} - {{ $activity->end_time }}</td>
+                            <td>{{ $activity->start_time }} <br/> {{ $activity->end_time }}</td>
                         </tr>
                     @endforeach
                     </tbody>
@@ -109,7 +109,7 @@
                             <td>{{ $appointment->visitor->name }}</td>
                             <td>{{ $appointment->visitor->mobile_num }}</td>
                             <td>{{ $appointment->appointment_date }}</td>
-                            <td>{{ $appointment->start_time }} - {{ $appointment->end_time }}</td>
+                            <td>{{ $appointment->start_time }} <br/>{{ $appointment->end_time }}</td>
                         </tr>
                     @endforeach
                     </tbody>

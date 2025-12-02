@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\Appointment;
-use App\Models\Officer;
-use App\Models\Post;
-use App\Models\WorkDay;
+use App\Service\AppointmentService;
 use App\Service\OfficerService;
+use App\Service\PostService;
+use App\Service\WorkDayService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -20,10 +20,16 @@ use Yajra\DataTables\DataTables;
 class OfficerController extends Controller
 {
     protected OfficerService $service;
+    protected AppointmentService $appointmentService;
+    protected PostService $postService;
+    protected WorkDayService $workDayService;
 
-    public function __construct(OfficerService $service)
+    public function __construct()
     {
-        $this->service = $service;
+        $this->service = app(OfficerService::class);
+        $this->appointmentService = app(AppointmentService::class);
+        $this->postService = app(PostService::class);
+        $this->workDayService = app(WorkDayService::class);
     }
 
     public function index(): view
@@ -33,17 +39,14 @@ class OfficerController extends Controller
 
     public function create(): View
     {
-        $posts = Post::select('id', 'name')->where('status', 'active')->orderBy('name')->get();
+        $posts=$this->postService->getActivePostNameAndId();
         return view('Officer.create_officer', compact('posts'));
     }
 
     public function edit(int $id): View
     {
-        $officer = Officer::findOrFail($id);
-        $posts = Post::select('id', 'name')
-            ->where('status', 'active')
-            ->orderBy('name')
-            ->get();
+        $officer =$this->service->findOrFail($id);
+        $posts = $this->postService->getActivePostNameAndId();
 
         return view('Officer.update_officer', compact('officer', 'posts'));
     }
@@ -59,7 +62,7 @@ class OfficerController extends Controller
         }
         return response()->json([
             'status' => 'error',
-            'message' => 'Officer Activation Failed'
+            'message' => 'Activate Related Post First'
         ]);
     }
 
@@ -83,8 +86,7 @@ class OfficerController extends Controller
      */
     public function getOfficers(): JsonResponse
     {
-        $query = Officer::with('workDay')->withCount('workDay')->orderByDesc('work_day_count')->get();
-
+        $query = $this->service->getQuery();
         return DataTables::of($query)
             ->addIndexColumn()
             ->addColumn('work_day', function ($officer) {
@@ -106,11 +108,7 @@ class OfficerController extends Controller
      */
     public function viewAppointments(int $id): JsonResponse
     {
-        $query =Appointment::where('officer_id',$id)
-            ->orderBy('status')
-            ->orderBy('appointment_date','desc')
-            ->orderBy('start_time')
-            ->get();
+        $query =$this->appointmentService->getAppointmentsQuery($id);
         return DataTables::of($query)
             ->addIndexColumn()
             ->addColumn('visitor_name', function ($appointment) {
@@ -121,7 +119,7 @@ class OfficerController extends Controller
 
     public function appointments(int $id): View
     {
-        $officer=Officer::findOrFail($id);
+        $officer=$this->service->findOrFail($id);
         return view('Officer.view_appointment',compact('officer'));
     }
 
@@ -135,29 +133,18 @@ class OfficerController extends Controller
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time'
         ]);
-        try {
-            Officer::create([
-                'name' => $request->name,
-                'post_id' => $request->post_id,
-                "work_start_time" => $request->start_time,
-                "work_end_time" => $request->end_time,
-            ]);
+
+           $response= $this->service->createOfficer($request->all());
+           if($response['status']=='error')
+               return response()->json($response);
             return response()->json([
                 'status' => 'success',
                 'message' => 'Officer Created Successfully'
             ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ]);
-        }
     }
 
     public function update(int $id, Request $request): JsonResponse
     {
-        $officer = Officer::findOrFail($id);
-
         $request->validate([
             'name' => 'required|string|max:255',
             'post_id' => 'required|exists:posts,id',
@@ -170,12 +157,10 @@ class OfficerController extends Controller
             DB::beginTransaction();
 
             // 1. Update officer
-            $officer->update([
-                'name' => $request->name,
-                'post_id' => $request->post_id,
-                "work_start_time" => $request->start_time,
-                "work_end_time" => $request->end_time,
-            ]);
+           $response = $this->service->updateOfficer($id, $request->all());
+           if($response['status']=='error'){
+               return response()->json($response);
+           }
 
             // Local time
             $today = Carbon::now('Asia/Kathmandu')->toDateString();
@@ -219,10 +204,10 @@ class OfficerController extends Controller
 
     public function assignDays(int $id): View
     {
-        $officer = Officer::findOrFail($id);
+        $officer = $this->service->findOrFail($id);
 
         $days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-        $existingDays = WorkDay::where('officer_id', $id)->pluck('day_of_week')->toArray() ?? [];
+        $existingDays = $this->workDayService->getExistingDays($id);
 
         return view('Officer.assign_working_days', compact('officer', 'days', 'existingDays'));
     }
@@ -233,24 +218,22 @@ class OfficerController extends Controller
             'days' => 'required|array',
             'days.*' => 'in:sunday,monday,tuesday,wednesday,thursday,friday,saturday',
         ]);
-
+        $this->service->findOrFail($id);
         DB::beginTransaction();
 
         try {
 
             // Reset officer days
-            WorkDay::where('officer_id', $id)->delete();
+           $this->workDayService->deleteWorkDayOfOfficer($id);
 
-            // Insert new working days
-            $insert = [];
+
             foreach ($request->days as $day) {
-                $insert[] = [
+                $data=[
                     'officer_id' => $id,
                     'day_of_week' => strtolower($day)
                 ];
+                $this->workDayService->create($data);
             }
-
-            WorkDay::insert($insert);
 
             // Cancel activities that fall on non-working days
             $today = Carbon::now('Asia/Kathmandu')->toDateString();

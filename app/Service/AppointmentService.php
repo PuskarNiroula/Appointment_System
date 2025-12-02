@@ -85,5 +85,12 @@ class AppointmentService{
     }
 
 
+    public function getAppointmentsQuery(int $id){
+        return Appointment::where('officer_id',$id)
+            ->orderBy('status')
+            ->orderBy('appointment_date','desc')
+            ->orderBy('start_time');
+    }
+
 
 }
