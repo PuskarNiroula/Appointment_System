@@ -32,25 +32,15 @@ This system ensures proper visitor flow, officer availability tracking, and auto
 - Track visitor history
 - Visitors linked automatically with their appointments
 
-[//]: # ()
-[//]: # (### 🔐 Authentication & Roles)
-
-[//]: # (- Admin panel for managing officers & configurations)
-
-[//]: # (- Officer-level access for viewing schedules and activities)
-
-[//]: # ()
-[//]: # (---)
-
 ## 🛠️ Tech Stack
 
-| Component | Technology |
-|----------|------------|
-| Backend  | Laravel 10+ |
-| Database | MySQL / MariaDB |
+| Component | Technology                        |
+|----------|-----------------------------------|
+| Backend  | Laravel 10+ (Laravel 12 recommended)                    |
+| Database | MySQL / MariaDB                   |
 | Frontend | Blade Templates (No Vite, No NPM) |
-| UI | Bootstrap |
-| Timezone | Asia/Kathmandu |
+| UI | Bootstrap                         |
+| Timezone | Asia/Kathmandu                    |
 
 ---
 
@@ -113,20 +103,20 @@ php artisan serve
 
 ---
 
-[//]: # (## ⚙️ Scheduler Setup &#40;For Auto-Complete Feature&#41;)
+## ⚙️ Scheduler Setup (For Auto-Complete Feature)
 
-[//]: # ()
-[//]: # (To auto-update expired appointments & activities, add this cron:)
 
-[//]: # ()
-[//]: # (```)
+To auto-update expired appointments & activities, add this cron:
 
-[//]: # (* * * * * php /path-to-your-project/artisan schedule:run >> /dev/null 2>&1)
 
-[//]: # (```)
+```
 
-[//]: # ()
-[//]: # (---)
+* * * * * php /path-to-your-project/artisan schedule:run >> /dev/null 2>&1
+
+```
+
+
+---
 
 ## 📚 Project Structure (Simplified)
 
@@ -175,20 +165,22 @@ resources/views/
 
 ---
 
-[//]: # (## ✔️ Automatic Status Update)
+## ✔️ Automatic Status Update
 
-[//]: # ()
-[//]: # (The scheduler updates:)
 
-[//]: # (- Activities: from **active → completed** when end_date & end_time pass)
+The scheduler updates:
 
-[//]: # (- Appointments: from **active → completed** automatically)
+- Activities: from **active → completed** when end_date & end_time pass
+- Activities: from **inactive → canceled** when end_date & end_time pass
 
-[//]: # ()
-[//]: # (This avoids manual work and ensures clean system records.)
+- Appointments: from **active → completed** automatically
+- Appointments: converted to **canceled** if its related activity is inactive when end_date & end_time pass
 
-[//]: # ()
-[//]: # (---)
+
+This avoids manual work and ensures clean system records.
+
+
+---
 
 ## 🙋‍♂️ Developed By
 **Puskar**
