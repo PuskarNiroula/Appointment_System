@@ -1,11 +1,14 @@
 @extends('Layout.layout')
 
-@section("page-title", "Visitors")
+@section("page-title")
+    Appointments of {{$officer->name}}
+
+@endsection
 
 @section('content')
 
     <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <a href="{{ route('visitor.create') }}" class="btn btn-primary">Add New Visitor</a>
+        <a href="{{ route('appointment.create') }}" class="btn btn-primary">Create Appointment</a>
     </div>
 
     <div class="d-flex justify-content-center mt-4">
@@ -13,7 +16,7 @@
 
             {{-- Header --}}
             <div class="card-header" style="background:#f0f0f0; border-radius:12px 12px 0 0;">
-                <h5 class="mb-0" style="color:#444; font-weight:600;">Visitors Table</h5>
+                <h5 class="mb-0" style="color:#444; font-weight:600;">Appointments Table</h5>
             </div>
 
             {{-- Search Bar --}}
@@ -32,9 +35,10 @@
                     <thead>
                     <tr>
                         <th>#</th>
-                        <th>Name</th>
-                        <th>Mobile Number</th>
-                        <th>Email</th>
+                        <th>Visitor Name</th>
+                        <th>Date</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -51,15 +55,14 @@
 
 @section('scripts')
     <script>
-        let csrf_token =`{{csrf_token()}}`;
-        function deactivate(id) {
+        function cancel(id) {
             Swal.fire({
                 "title": "Are you sure?",
                 showCancelButton: true,
             }).then((result) => {
                 if(result.isConfirmed){
                     $.ajax({
-                        url: `/visitor/${id}/deactivate/`,
+                        url: `/appointment/${id}/cancel/`,
                         method: 'patch',
                         headers: {
                             "X-CSRF-TOKEN": csrf_token
@@ -82,45 +85,14 @@
                 }
             })
         }
-        function activate(id) {
-            Swal.fire({
-                "title": "Are you sure?",
-                showCancelButton: true,
-            }).then((result) => {
-                if(result.isConfirmed){
-                    $.ajax({
-                        url: `/visitor/${id}/activate/`,
-                        method: 'patch',
-                        headers: {
-                            "X-CSRF-TOKEN": csrf_token
-                        },
-
-                        success: function (response) {
-                            if(response.status === 'success'){
-                                Swal.fire("Success!", response.message, "success").then(()=>{
-                                    location.reload();
-                                });
-
-                            }else{
-                                Swal.fire("Error!", response.message, "error");
-                            }
-                        },
-                        errors: function (error) {
-                            Swal.fire("Error!", "Something went wrong", "error");
-                        }
-                    });
-
-                }
-            })
-        }
-
         $(document).ready(function () {
 
             let columns = [
                 {data: 'DT_RowIndex', name: 'id', orderable: false, searchable: false},
-                {data: 'name', name: 'name'},
-                {data: "mobile_num", name: "mobile_num"},
-                {data: "email", name: "email"},
+                {data: 'visitor_name', name: 'visitor_name'},
+                {data: 'appointment_date', name: 'appointment_date'},
+                {data: 'start_time', name: 'start_time'},
+                {data: 'end_time', name: 'end_time'},
                 {data: 'status', name: 'status'},
                 {
                     data: 'status',
@@ -128,23 +100,20 @@
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
+                        if(row.status==="cancelled") return ("Cancelled")
+                        if(row.status==="completed") return ("Completed")
 
-                        let editBtn = `<a href="/visitor/${row.id}/edit" class="btn btn-sm btn-primary me-1">Edit</a>`;
+                        let editBtn = `<a href="/appointment/${row.id}/edit" class="btn btn-sm btn-primary me-1">Edit</a>`;
 
                         let statusBtn = row.status === 'active'
-                            ? `<button class="btn btn-sm btn-warning" onclick="deactivate(${row.id})">Deactivate</button>`
-                            : `<button class="btn btn-sm btn-success" onclick="activate(${row.id})">Activate</button>`;
+                            ? `<button class="btn btn-sm btn-warning" onclick="cancel(${row.id})">Cancel</button>`
+                            : 'deactivated';
 
-                        let buttons=editBtn+statusBtn;
-                        if(row.status === 'inactive') buttons = statusBtn;
-
-                        return buttons;
+                        return editBtn + statusBtn;
                     }
                 }
             ];
-
-            initDataTable(".data-table", "{{ route('visitors.api') }}", columns);
-
+            initDataTable(".data-table", "{{ route('officer.appointment.api',$officer->id) }}", columns);
         });
     </script>
 
