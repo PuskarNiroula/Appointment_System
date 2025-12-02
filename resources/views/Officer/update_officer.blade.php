@@ -120,7 +120,7 @@
                                     response.message||"Officer registered successfully",
                                     'success'
                                 ).then((result) => {
-                                    window.location.href = "{{ route('officers.index') }}";
+                                    window.location.href = "{{ route('officer.index') }}";
                                 });
                             }else{
                                 Swal.fire(
