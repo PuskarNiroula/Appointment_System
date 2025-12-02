@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Activity;
 use App\Models\Appointment;
+use App\Models\Visitor;
 use App\Service\ActivityService;
 use App\Service\AppointmentService;
 use App\Service\OfficerService;
@@ -154,7 +156,7 @@ class AppointmentController extends Controller
         return view('Appointment.update',compact('appointment','officers','visitors'));
   }
   public function update(int $id,Request $request):JsonResponse{
-        $appointment=Appointment::findOrFail($id);
+        $app=Appointment::findOrFail($id);
       $request->validate([
           'officer_id'=>'required|exists:officers,id',
           'visitor_id'=>'required|exists:visitors,id',
@@ -164,7 +166,80 @@ class AppointmentController extends Controller
       ]);
 
       try{
-          $appointment->update([
+          Visitor::findOrFail($request->visitor_id);
+          $appointments=Appointment::where('visitor_id',$id)
+              ->where('appointment_date',$request->date)
+              ->whereNotIn('status',['cancelled','completed'])
+              ->where('id','!=',$id)
+              ->get();
+
+              foreach ($appointments as $appointment) {
+                  if ($appointment->start_time <= $request->start_time && $appointment->end_time > $request->end_time) {
+                      return response()->json([
+                          'status' => 'error',
+                          'message' => 'Visitor is busy in this time slot'
+                      ]);
+                  } elseif ($appointment->start_time < $request->end_time && $appointment->end_time >= $request->start_time) {
+                      return response()->json([
+                          'status' => 'error',
+                          'message' => 'Visitor is busy in this time slot'
+                      ]);
+                  }
+              }
+
+          if(!$this->activityService->checkWorkingDay($request->officer_id,$request->date)){
+
+              $day = Carbon::createFromFormat('Y-m-d', $request->date)->format('l');
+
+              return response()->json([
+                  'status'=>'error',
+                  'message'=>'Officer do not work on '.$day.'.'
+              ]);
+          }
+          $rep=$this->activityService->checkWorkingHour($request->officer_id,$request->start_time,$request->end_time);
+          if($rep['status']=='error')
+              return response()->json($rep);
+          DB::beginTransaction();
+          $a =Activity::where('officer_id',$app->officer_id)
+              ->where('start_date',$app->appointment_date)
+              ->where('end_date',$app->appointment_date)
+              ->whereNot('status','cancelled')
+              ->where('start_time',$app->start_time)
+              ->where('end_time',$app->end_time)
+              ->first();
+          $now = Carbon::now('Asia/Kathmandu');
+
+          $activities = Activity::where('officer_id', $request->officer_id)
+              ->whereNotIn('status', ['cancelled', 'completed'])
+              ->where(function ($query) use ($now) {
+                  $query->where('end_date', '>', $now->toDateString())
+                      ->orWhere(function ($q) use ($now) {
+                          $q->where('end_date', $now->toDateString())
+                              ->where('end_time', '>=', $now->toTimeString());
+                      });
+              })
+              ->where('id', '!=', $a->id)
+              ->get();
+
+              foreach($activities as $activity) {
+                  if (!$this->activityService->singleDayCheck($request->date, $request->date, $request->end_time, $activity)) {
+                      return response()->json([
+                          'status' => 'error',
+                          'message' => 'Officer is busy in this time slot on single day'
+                      ]);
+                  }
+              }
+
+              $a->update([
+                  'officer_id'=>$request->officer_id,
+                  'start_date'=>$request->date,
+                  'end_date'=> $request->date,
+                  'start_time'=>$request->start_time,
+                  'end_time'=>$request->end_time,
+                  'status'=>'active'
+              ]);
+
+          $app->update([
               'officer_id'=>$request->officer_id,
               'visitor_id'=>$request->visitor_id,
               'appointment_date'=>$request->date,
@@ -172,12 +247,14 @@ class AppointmentController extends Controller
               'end_time'=>$request->end_time,
               'status'=>'active'
           ]);
+          DB::commit();
           return response()->json([
               'status'=>'success',
               'message'=>'Appointment Updated Successfully'
           ]);
 
       }catch (Exception $e){
+          DB::rollBack();
           return response()->json([
               'status'=>'error',
               'message'=>$e->getMessage()

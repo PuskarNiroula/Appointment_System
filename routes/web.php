@@ -56,12 +56,13 @@ Route::controller(OfficerController::class)->group(function (){
 Route::controller(ActivityController::class)->group(function (){
     Route::get('/activities','index')->name('activity.index');
     Route::get('/activities-api','getActivities')->name('activities.api');
-    Route::get('/activity/{id}/edit','edit')->name('activity.edit');
+    Route::get('/activity/{activity}/edit','edit')->name('activity.edit');
     Route::put('/activity/{activity}/update','update')->name('activity.update');
     Route::patch('/activity/{activity}/activate','activate')->name('activity.activate');
     Route::patch('/activity/{activity}/deactivate','deactivate')->name('activity.deactivate');
     Route::get('/activity/create','create')->name('activity.create');
     Route::post('/activity/create','store')->name('activity.store');
+    Route::patch('/activity/{activity}/cancel','cancel')->name('activity.cancel');
 });
 
 Route::controller(AppointmentController::class)->group(function (){

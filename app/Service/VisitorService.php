@@ -91,6 +91,7 @@ class VisitorService
                     return false;
                 }
             }
+
             return true;
         }catch (Exception){
             return false;
