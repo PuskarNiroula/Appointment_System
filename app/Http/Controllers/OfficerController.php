@@ -245,15 +245,13 @@ class OfficerController extends Controller
 
                     // If this day is NOT in working days → cancel
                     if (!in_array($dayOfActivity, $request->days)) {
-
                         // Cancel matching appointment
                         if ($activity->type === 'appointment') {
                             Appointment::where('officer_id', $id)
-                                ->where('start_date', $activity->start_date)
+                                ->where('appointment_date', $activity->start_date)
                                 ->whereNotIn('status', ['cancelled', 'completed'])
                                 ->update(['status' => 'cancelled']);
                         }
-
                         // Cancel activity
                         $activity->update(['status' => 'cancelled']);
                     }
@@ -262,14 +260,14 @@ class OfficerController extends Controller
 
             DB::commit();
 
-            return redirect()->route('officers.index')
+            return redirect()->route('officer.index')
                 ->with('success', 'Working days updated successfully.');
 
         } catch (Exception $e) {
 
             DB::rollBack();
 
-            return redirect()->back()->with('error', $e->getMessage());
+            return redirect()->back()->withErrors($e->getMessage());
         }
     }
 

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static where(string $string, mixed $officer_id)
  * @method static findOrFail(int $id)
  * @method static createOrUpdate(array $data)
+ * @method static orderBy(string $string, string $string1)
  */
 class Activity extends Model
 {
