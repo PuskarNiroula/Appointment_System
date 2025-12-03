@@ -35,8 +35,7 @@
                         <th>Officer Name</th>
                         <th>Visitor Name</th>
                         <th>Date</th>
-                        <th>Start Time</th>
-                        <th>End Time</th>
+                        <th>Time</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -92,8 +91,16 @@
                 {data: 'officer_name', name: 'officer_name'},
                 {data: 'visitor_name', name: 'visitor_name'},
                 {data: 'appointment_date', name: 'appointment_date'},
-                {data: 'start_time', name: 'start_time'},
-                {data: 'end_time', name: 'end_time'},
+                {
+                    data: 'start_time',
+                    name: 'start_time',
+                    render: function(data, type, row) {
+                        return `${row.start_time} - ${row.end_time}`
+
+                    }
+
+                },
+
                 {data: 'status', name: 'status'},
                 {
                     data: 'status',

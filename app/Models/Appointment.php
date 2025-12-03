@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static findOrFail(int $id)
  * @method static where(string $string, int $id)
  * @method static count()
+ * @method static orderBy(string $string)
  */
 class Appointment extends Model
 {

@@ -101,8 +101,16 @@ class VisitorService
         return Visitor::where('status','active')->get();
     }
 
-
-    public function getAllVisitors(){
-        return Visitor::all();
+    /**
+     * @throws Exception
+     */
+    public function getById(int $id){
+        $visitor=Visitor::find($id);
+        if(!$visitor)
+            throw new Exception("Visitor Not Found");
+        return $visitor;
+    }
+    public function getInactiveVisitorCount(){
+        return Visitor::where('status','inactive')->count();
     }
 }

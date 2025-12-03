@@ -42,7 +42,7 @@ class ActivityController extends Controller
 
     public function getActivities(): JsonResponse
     {
-        $query = Activity::orderBy('status')->orderBy('start_date','desc')->orderBy('start_time')->get(); // eager load officer
+        $query = Activity::orderBy("status",'asc')->orderBy('start_date','desc')->orderBy('start_time')->get(); // eager load officer
 
         return DataTables::of($query)
             ->addIndexColumn()

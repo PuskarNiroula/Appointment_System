@@ -3,11 +3,9 @@
 namespace App\Service;
 
 use App\Models\Activity;
-use App\Models\Appointment;
 use App\Models\Officer;
 use App\Models\WorkDay;
 use Carbon\Carbon;
-use Exception;
 
 class ActivityService
 {
@@ -273,6 +271,50 @@ public function cancel(Activity $activity):array{
                 'message'=>'Activity cancelled successfully'
             ];
 }
+public function cancelActivityRelatedToAppointment($data):bool{
+   $activity=Activity::where('start_date',$data['appointment_date'])
+       ->where('officer_id',$data['officer_id'])
+       ->where('end_date',$data['appointment_date'])
+       ->where('start_time',$data['start_time'])
+       ->where('end_time',$data['end_time'])
+       ->first();
+   if($activity!==null){
+       $activity->update(['status'=>'cancelled']);
+      return true;
+   }else{
+       return false;
+   }
+}
+
+public function getFutureActivitiesOfOfficerForUpdate($officer_id, int $id)
+{
+    $now=Carbon::now('Asia/Kathmandu');
+   return Activity::where('officer_id', $officer_id)
+        ->whereNotIn('status', ['cancelled', 'completed'])
+        ->where(function ($query) use ($now) {
+            $query->where('end_date', '>', $now->toDateString())
+                ->orWhere(function ($q) use ($now) {
+                    $q->where('end_date', $now->toDateString())
+                        ->where('end_time', '>=', $now->toTimeString());
+                });
+        })
+        ->where('id', '!=', $id)
+        ->get();
+
+
+}
+
+public function getFutureActivities(){
+    return Activity::where('status','active')
+        ->where('start_date', '>=', now('Asia/Kathmandu')->toDateString())
+        ->orderBy('start_date')
+        ->limit(10)
+        ->get();
+
+
+}
+
+
 
 
 

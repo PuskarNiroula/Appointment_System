@@ -35,8 +35,8 @@
                         <th>Officer Name</th>
                         <th>Activity Type</th>
                         <th>Start Date</th>
-                        <th>End Date</th>
                         <th>Start Time</th>
+                        <th>End Date</th>
                         <th>End Time</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -124,8 +124,8 @@
                 {data: 'officer_name', name: 'officer_name'},
                 {data: 'type', name: 'type'},
                 {data: 'start_date', name: 'start_date'},
-                {data: 'end_date', name: 'end_date'},
                 {data: 'start_time', name: 'start_time'},
+                {data: 'end_date', name: 'end_date'},
                 {data: 'end_time', name: 'end_time'},
                 {data: 'status', name: 'status'},
                 {
@@ -147,7 +147,6 @@
                         }
                         if(row.type === 'appointment')
                             return statusBtn;
-
 
                         return editBtn + statusBtn;
                     }

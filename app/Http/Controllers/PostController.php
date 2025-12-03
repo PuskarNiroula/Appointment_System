@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Officer;
-use App\Models\Post;
+use App\Service\OfficerService;
+use App\Service\PostService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,6 +12,12 @@ use Yajra\DataTables\DataTables;
 
 class PostController extends Controller
 {
+    protected PostService $postService;
+    protected OfficerService $officerService;
+    public function __construct(){
+        $this->postService=app(PostService::class);
+        $this->officerService=app(OfficerService::class);
+    }
     public function index():View{
         return view('Post.post');
     }
@@ -20,9 +26,8 @@ class PostController extends Controller
      * @throws Exception
      */
     public function getPosts():JsonResponse{
-        $posts = Post::select('name','status','id');
-
-        return DataTables::of($posts)
+        $query = $this->postService->getPostQuery();
+        return DataTables::of($query)
             ->addIndexColumn()
             ->make(true);
     }
@@ -36,61 +41,36 @@ class PostController extends Controller
             'name' => 'required|string|max:255|unique:posts,name'
         ]);
 
-        try {
-            Post::create([
-                'name' => $request->name
-            ]);
-
-            return response()->json([
-                'status' => "success",
-                'message' => 'Post Created Successfully'
-            ], 201);
-
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error'   => 'Something went wrong!',
-                'message' => $e->getMessage()
-            ], 500);
-        }
+       $response=$this->postService->createPost($request->name);
+       return response()->json($response);
     }
 
     public function edit(int $id):View{
-        $post=Post::select('id','name')->findOrFail( $id);
+        $post=$this->postService->getPostById($id);
         return view('Post.update_post',compact('post'));
     }
     public function update(int $id,Request $request):JsonResponse{
-        $post=Post::findOrFail($id);
+
         $request->validate([
             'name'=>'required|string|max:255|unique:posts,name'
         ]);
-        $post->name=$request->name;
-        $post->save();
-        return response()->json([
-            'status'=>"success",
-            'message'=>"Post Updated Successfully"
-        ]);
+       $response=$this->postService->updatePost($id,$request->name);
+       return response()->json($response);
     }
 
     public function activate(int $id):JsonResponse{
-        Post::findOrFail($id)->update(['status' => 'active']);
-        return response()->json([
-            'status'=>"success",
-            'message'=>"Post Activated Successfully"
-        ]);
+       $response= $this->postService->activatePost($id);
+       return response()->json($response);
     }
     public function deactivate(int $id):JsonResponse{
-      if(Officer::where('post_id',$id)->where('status',"active")->exists()){
-          return response()->json([
-              'status'=>"error",
-              'message'=>"Post Deactivated Failed, There are officer(s) assigned to this post."
-          ]);
-      }
-      Post::findOrFail($id)->update(['status' => 'inactive']);
-      return response()->json([
-          'status'=>"success",
-          'message'=>"Post Deactivated Successfully"
-      ]);
+     if($this->officerService->getOfficerByPostId($id)){
+         return response()->json([
+             'status'=>'error',
+             'message'=>'Post has active officers'
+         ]);
+     }
+      $response= $this->postService->deactivatePost($id);
+     return response()->json($response);
     }
 
 }

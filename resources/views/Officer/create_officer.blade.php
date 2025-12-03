@@ -5,6 +5,7 @@
 @endsection
 
 @section('content')
+
     <div class="d-flex justify-content-center mt-5">
         <div class="card shadow-sm w-75 custom-grey-card mb-4">
 
@@ -37,8 +38,8 @@
                         <label for="post_id" class="form-label grey-label">Post</label>
                         @if(!empty($posts) && $posts->count())
                             <select name="post_id" id="post_id" class="form-control modern-input" required>
-                                @foreach($posts as $post)
-                                    <option value="{{ $post->id }}">{{ $post->name }}</option>
+                                @foreach($posts as $name=>$id)
+                                    <option value="{{ $id }}">{{ $name }}</option>
                                 @endforeach
                             </select>
                         @else

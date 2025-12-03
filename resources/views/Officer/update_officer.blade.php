@@ -37,10 +37,10 @@
                         <label for="post_id" class="form-label grey-label">Post</label>
                         @if(!empty($posts) && $posts->count())
                             <select name="post_id" id="post_id" class="form-control modern-input" required>
-                                @foreach($posts as $post)
-                                    <option value="{{ $post->id }}"
-                                        {{ $officer->post_id == $post->id ? 'selected' : '' }}>
-                                        {{ $post->name }}
+                                @foreach($posts as $name=>$id)
+                                    <option value="{{ $id }}"
+                                        {{ $officer->post_id == $id ? 'selected' : '' }}>
+                                        {{ $name }}
                                     </option>
                                 @endforeach
                             </select>
