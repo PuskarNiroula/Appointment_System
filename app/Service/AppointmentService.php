@@ -80,7 +80,6 @@ class AppointmentService{
                 ->where('type', 'appointment')
                 ->where('status', 'active')
                 ->update(['status' => 'cancelled']);
-
             DB::commit();
         }
 
@@ -89,13 +88,22 @@ class AppointmentService{
 
 
     public function getAppointmentsQuery(int $id){
-        return Appointment::where('officer_id',$id)
+        return  Appointment::where('officer_id', $id)
+            ->join('visitors', 'visitors.id', '=', 'appointments.visitor_id')
+            ->select(
+                'appointments.*',
+                'visitors.name as visitor_name'
+            )
             ->orderBy('status')
             ->orderBy('appointment_date','desc')
             ->orderBy('start_time');
     }
     public function getQuery(){
-        return Appointment::orderBy('status')->orderBy('appointment_date','desc')->orderBy('start_time');
+        return Appointment::orderBy('status')->orderBy('appointment_date','desc')->orderBy('start_time')
+            ->join('visitors','visitors.id','=','appointments.visitor_id')
+            ->join('officers','officers.id','=','appointments.officer_id')
+            ->select('appointments.*','visitors.name as visitor_name','officers.name as officer_name');
+
     }
     public function cancel(int $id):bool{
 
@@ -131,6 +139,19 @@ class AppointmentService{
             ->orderBy('appointment_date','desc')
             ->limit(10)
             ->get();
+    }
+    public function getQueryForVisitor(int $id){
+        return Appointment::where('visitor_id', $id)
+            ->orderBy('status')
+            ->orderBy('appointment_date','desc')
+            ->orderBy('start_time')
+            ->join('officers', 'officers.id', '=', 'appointments.officer_id')
+            ->select(
+                'appointments.*',
+                'officers.name as officer_name'
+            );
+
+
     }
 
 

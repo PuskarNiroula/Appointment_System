@@ -125,25 +125,48 @@
                 {
                     data: 'status',
                     name: 'action',
+                    render: function (data, type, row) {
+
+
+
+
+
+                        // Activate/Deactivate
+                        let statusOption = row.status === 'active'
+                            ? `<li><a class="dropdown-item" href="javascript:void(0)" onclick="deactivate(${row.id})">Deactivate</a></li>`
+                            : `<li><a class="dropdown-item" href="javascript:void(0)" onclick="activate(${row.id})">Activate</a></li>`;
+
+                        // These two should only appear if ACTIVE
+                        let extraOptions = `
+            <li>
+                <a class="dropdown-item" href="/visitor/${row.id}/edit">Edit</a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="/visitor/${row.id}/appointments">View Appointments</a>
+            </li>
+        `;
+
+                        return `
+        <div class="dropdown">
+            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                Actions
+            </button>
+            <ul class="dropdown-menu">
+                ${statusOption}
+
+                ${row.status === 'active' ? extraOptions : ''}
+
+            </ul>
+        </div>
+        `;
+                    },
                     orderable: false,
-                    searchable: false,
-                    render: function(data, type, row) {
-
-                        let editBtn = `<a href="/visitor/${row.id}/edit" class="btn btn-sm btn-primary me-1">Edit</a>`;
-
-                        let statusBtn = row.status === 'active'
-                            ? `<button class="btn btn-sm btn-warning" onclick="deactivate(${row.id})">Deactivate</button>`
-                            : `<button class="btn btn-sm btn-success" onclick="activate(${row.id})">Activate</button>`;
-
-                        let buttons=editBtn+statusBtn;
-                        if(row.status === 'inactive') buttons = statusBtn;
-
-                        return buttons;
-                    }
+                    searchable: false
                 }
             ];
 
             initDataTable(".data-table", "{{ route('visitors.api') }}", columns);
+
 
         });
     </script>

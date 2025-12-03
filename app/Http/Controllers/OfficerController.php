@@ -84,23 +84,33 @@ class OfficerController extends Controller
     /**
      * @throws Exception
      */
-    public function getOfficers(): JsonResponse
+    public function getOfficers(Request $request): JsonResponse
     {
         $query = $this->service->getQuery();
         return DataTables::of($query)
-            ->addIndexColumn()
-            ->addColumn('work_day', function ($officer) {
-                $work_days=[];
-                foreach ($officer->workDay as $work_day){
-                    $work_days[]=$work_day->day_of_week;
+            ->filter(function ($query) use ($request) {
+                if ($request->has('search') && $request->search['value']) {
+                    $search = $request->search['value'];
+                    $query->where(function($q) use ($search) {
+                        $q->where('officers.name', 'like', "%{$search}%")
+                            ->orWhere('posts.name', 'like', "%{$search}%"); // search by post name
+                    });
                 }
-                return implode(', ',$work_days);
             })
-            // Searchable column: post.name
-          ->addColumn('post',function ($officer){
-              return $officer->post->name;
+            ->addColumn('post', function($row) {
+                return $row->post_name; // use the alias from select
             })
-            ->make();
+            ->addColumn('work_day', function($query) {
+                $days=[];
+                foreach($query->workDay as $day){
+                    $days[]=$day->day_of_week;
+                }
+                return implode(', ',$days);
+            })
+            ->orderColumn('work_day_count', function ($query, $order) {
+                $query->orderBy('work_day_count', $order);
+            })
+            ->make(true);
     }
 
     /**
@@ -232,7 +242,7 @@ class OfficerController extends Controller
                     'officer_id' => $id,
                     'day_of_week' => strtolower($day)
                 ];
-                $this->workDayService->create($data);
+                $this->workDayService->createWorkDay($data);
             }
 
             // Cancel activities that fall on non-working days

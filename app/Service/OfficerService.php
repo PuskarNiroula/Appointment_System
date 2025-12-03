@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Models\Activity;
 use App\Models\Appointment;
 use App\Models\Officer;
 use Carbon\Carbon;
@@ -37,7 +38,6 @@ class OfficerService
             }
 
             $now = Carbon::now('Asia/Kathmandu');
-            // Get only future appointments
             $appointments = Appointment::where('officer_id', $id)
                 ->where(function ($query) use ($now) {
                     $query->where('appointment_date', '>', $now->toDateString())
@@ -52,6 +52,12 @@ class OfficerService
             foreach ($appointments as $appointment) {
                 if ($appointment->visitor && $appointment->visitor->status === 'active') {
                     $this->appointmentService->activateAppointment($appointment->id);
+                    Activity::where('officer_id', $appointment->officer_id)
+                        ->where('start_date', $appointment->appointment_date)
+                        ->where('end_date', $appointment->appointment_date)
+                        ->where('start_time', $appointment->start_time)
+                        ->where('end_time', $appointment->end_time)
+                        ->update(['status' => 'active']);
                 }
             }
 
@@ -81,10 +87,21 @@ class OfficerService
                                 ->where('start_time', '>=', $now->toTimeString());
                         });
                 })
-                ->with('visitor')
                 ->get();
             foreach ($appointments as $appointment) {
                 $this->appointmentService->deactivateAppointment($appointment->id);
+            }
+            $activities=Activity::where('officer_id',$id)
+                 ->where(function ($query) use ($now) {
+                     $query->where('end_date', '>', $now->toDateString())
+                         ->orWhere(function ($q) use ($now) {
+                             $q->where('end_date', $now->toDateString())
+                                 ->where('start_time', '>=', $now->toTimeString());
+                         });
+                 })
+                 ->get();
+            foreach ($activities as $activity){
+                $activity->update(['status'=>'deactivated']);
             }
             $officer->update(['status' => 'inactive']);
             DB::commit();
@@ -106,7 +123,12 @@ class OfficerService
         return Officer::findOrFail($id);
     }
     public function getQuery(){
-        return Officer::with('workDay')->withCount('workDay')->orderByDesc('work_day_count');
+//        return Officer::with('workDay')->withCount('workDay')->orderByDesc('work_day_count');
+
+        return Officer::join('posts', 'posts.id', '=', 'officers.post_id')
+            ->select('officers.*', 'posts.name as post_name') // alias for search
+            // still eager-load relationships if needed
+            ->withCount('workDay');
 
     }
     public function createOfficer($data):array{

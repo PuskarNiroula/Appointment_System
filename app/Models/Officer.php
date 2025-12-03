@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static create(array $array)
  * @method static find(mixed $officer_id)
  * @method static where(string $string, mixed $officer_id)
+ * @method static whereHas(string $string)
  */
 class Officer extends Model
 {

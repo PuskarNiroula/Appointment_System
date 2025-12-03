@@ -37,6 +37,8 @@ Route::controller(VisitorController::class)->group(function () {
     Route::patch('/visitor/{visitor}/deactivate','deactivate')->name('visitor.deactivate');
     Route::get('/visitor/create','create')->name('visitor.create');
     Route::post('/visitor/create','store')->name('visitor.store');
+    Route::get('/visitor/{visitor}/appointments','appointments')->name('visitor.appointments');
+    Route::get('/visitor/{visitor}/view-appointments','viewAppointments')->name('visitor.appointment.api');
 });
 
 Route::controller(OfficerController::class)->group(function (){

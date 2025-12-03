@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static where(string $string, int $id)
  * @method static count()
  * @method static orderBy(string $string)
+ * @method static select(string $string, string $string1, string $string2, string $string3, string $string4, string $string5)
+ * @method static whereIn(string $string, $pluck)
  */
 class Appointment extends Model
 {

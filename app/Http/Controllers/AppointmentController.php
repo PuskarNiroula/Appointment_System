@@ -80,6 +80,7 @@ class AppointmentController extends Controller
                     ]);
                 }
             }
+
             //checking for the visitor
             if(!$this->visitorService->checkIfAvailable(
                 $request->visitor_id,
@@ -170,7 +171,6 @@ class AppointmentController extends Controller
         }
   }
   public function update(int $id,Request $request):JsonResponse{
-
       $request->validate([
           'officer_id'=>'required|exists:officers,id',
           'visitor_id'=>'required|exists:visitors,id',
@@ -181,12 +181,14 @@ class AppointmentController extends Controller
 
       try {
           $app = $this->appointmentService->getById($id);
-          if ($this->visitorService->checkIfAvailable($request->visitor_id, $request->date, $request->start_time, $request->end_time)) {
+
+          if (!$this->visitorService->checkIfAvailableForUpdate($request->visitor_id, $request->date, $request->start_time, $request->end_time,$id)) {
               return response()->json([
                   'status' => 'error',
                   'message' => 'Visitor is not available on this time slot'
               ]);
           }
+
           if(!$this->activityService->checkWorkingDay($request->officer_id,$request->date)){
               $day = Carbon::createFromFormat('Y-m-d', $request->date)->format('l');
               return response()->json([
@@ -206,13 +208,17 @@ class AppointmentController extends Controller
               ->where('end_time',$app->end_time)
               ->first();
 
+
           $activities=  $this->activityService->getFutureActivitiesOfOfficerForUpdate($request->officer_id,$a->id);
 
+
               foreach($activities as $activity) {
-                  if (!$this->activityService->singleDayCheck($request->date, $request->date, $request->end_time, $activity)) {
+
+
+                  if (!$this->activityService->singleDayCheck($request->date, $request->start_time, $request->end_time, $activity)) {
                       return response()->json([
                           'status' => 'error',
-                          'message' => 'Officer is busy in this time slot on single day'
+                          'message' => 'Officer is busy in this time slot on single day yei hos'
                       ]);
                   }
               }

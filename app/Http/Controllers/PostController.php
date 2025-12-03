@@ -52,7 +52,7 @@ class PostController extends Controller
     public function update(int $id,Request $request):JsonResponse{
 
         $request->validate([
-            'name'=>'required|string|max:255|unique:posts,name'
+            'name'=>'required|string|max:255|unique:posts,name,'.$id
         ]);
        $response=$this->postService->updatePost($id,$request->name);
        return response()->json($response);
