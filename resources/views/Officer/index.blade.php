@@ -124,7 +124,7 @@
                     data: 'post',
                     name: 'post',
                 },
-                {data: "working_hour", name: "working_hour",
+                {data: "working_hour", name: "work_start_time",
                     render: function(data, type, row) {
                         return row.work_start_time + '-' + row.work_end_time;
                     }
@@ -150,6 +150,8 @@
                 {
                     data: 'status',
                     name: 'action',
+                    orderable: false,
+                    searchable: false,
                     render: function (data, type, row) {
 
                         // Common options — always available

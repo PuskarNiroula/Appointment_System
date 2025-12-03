@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Models\Activity;
+use App\Models\Appointment;
 use App\Models\Officer;
 use App\Models\WorkDay;
 use Carbon\Carbon;
@@ -32,7 +33,6 @@ class ActivityService
 
         // Check overlaps
         $response = $this->checkIfAvailable(
-            $data['id']??null,
             $data['officer_id'],
             $newStartDate,
             $newEndDate,
@@ -66,7 +66,7 @@ class ActivityService
             ];
         }
     }
-    private function checkIfAvailable($activity_id,$officer_id, $newStartDate, $newEndDate, $newStartTime, $newEndTime)
+    private function checkIfAvailable($officer_id, $newStartDate, $newEndDate, $newStartTime, $newEndTime)
     {
         $existingActivities = Activity::where('officer_id', $officer_id)
             ->where('status', 'active')
@@ -86,25 +86,7 @@ class ActivityService
             })
             ->get();
 
-        if($activity_id!==null){
-            $existingActivities = Activity::where('officer_id', $officer_id)
-                ->where('status', 'active')
-                ->where(function ($query) use ($newStartDate, $newEndDate) {
 
-                    // New range overlaps existing range
-                    $query->where(function ($q) use ($newStartDate, $newEndDate) {
-                        $q->where('start_date', '<=', $newStartDate)
-                            ->where('end_date', '>=', $newStartDate);
-                    })
-
-                        ->orWhere(function ($q) use ($newStartDate, $newEndDate) {
-                            $q->where('start_date', '<=', $newEndDate)
-                                ->where('end_date', '>=', $newEndDate);
-                        });
-
-                })->where('id','!=',$activity_id)
-                ->get();
-        }
 
         foreach ($existingActivities as $activity) {
 
@@ -120,7 +102,8 @@ class ActivityService
 
                     if (
                         ($newStartTime >= $existStartTime && $newStartTime < $existEndTime) ||
-                        ($newEndTime > $existStartTime && $newEndTime <= $existEndTime)
+                        ($newEndTime > $existStartTime && $newEndTime <= $existEndTime)||
+                        ($newStartTime <= $existStartTime && $newEndTime >= $existEndTime)
                     ) {
                         return [
                             'status'  => 'error',
@@ -168,12 +151,30 @@ class ActivityService
 
         //first if lies in between some date
         if($activity->start_date<$date && $activity->end_date>$date){
+            if($activity->status=='deactivated'){
+                $activity->update(['status'=>'cancelled']);
+                Appointment::where('status','deactivated')
+                    ->where('appointment_date',$activity->start_date)
+                    ->where('start_time',$activity->start_time)
+                    ->where('end_time',$activity->end_time)
+                    ->update(['status'=>'cancelled']);
+               return true;
+            }
             return false;
         }
 
         //if the start-date matches with the new date
        if($activity->start_date==$date){
                if($end_time>$activity->start_time){
+                   if($activity->status=='deactivated'){
+                       $activity->update(['status'=>'cancelled']);
+                       Appointment::where('status','deactivated')
+                           ->where('appointment_date',$activity->start_date)
+                           ->where('start_time',$activity->start_time)
+                           ->where('end_time',$activity->end_time)
+                           ->update(['status'=>'cancelled']);
+                       return true;
+                   }
                    return false;
                }
 
@@ -181,6 +182,15 @@ class ActivityService
        //if the end-date matches with the date
        if($activity->end_date==$date){
                if($start_time<$activity->end_time){
+                   if($activity->status=='deactivated'){
+                       $activity->update(['status'=>'cancelled']);
+                       Appointment::where('status','deactivated')
+                           ->where('appointment_date',$activity->start_date)
+                           ->where('start_time',$activity->start_time)
+                           ->where('end_time',$activity->end_time)
+                           ->update(['status'=>'cancelled']);
+                       return true;
+                   }
                    return false;
                }
        }
@@ -298,11 +308,28 @@ public function getFutureActivitiesOfOfficerForUpdate($officer_id, int $id)
                         ->where('end_time', '>=', $now->toTimeString());
                 });
         })
-        ->where('id', '!=', $id)
+        ->whereNot('id', $id)
         ->get();
-
-
 }
+    public function getFutureActivitiesOfOfficer(int $officer_id, int $excludeId = null)
+    {
+        $now = Carbon::now('Asia/Kathmandu');
+
+        return Activity::where('officer_id', $officer_id)
+            ->whereNotIn('status', ['cancelled', 'completed'])
+            ->where(function ($query) use ($now) {
+                $query->where('end_date', '>', $now->toDateString())
+                    ->orWhere(function ($q) use ($now) {
+                        $q->where('end_date', $now->toDateString())
+                            ->where('end_time', '>=', $now->toTimeString());
+                    });
+            })
+            ->when($excludeId, function ($q) use ($excludeId) {
+                $q->where('id', '!=', $excludeId);
+            })
+            ->get();
+    }
+
 
 public function getFutureActivities(){
     return Activity::where('status','active')
@@ -310,8 +337,6 @@ public function getFutureActivities(){
         ->orderBy('start_date')
         ->limit(10)
         ->get();
-
-
 }
 
 

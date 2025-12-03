@@ -3,19 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Visitor;
+use App\Service\AppointmentService;
 use App\Service\VisitorService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\DataTables;
+use function Laravel\Prompts\select;
 
- class VisitorController extends Controller
+class VisitorController extends Controller
 {
     protected VisitorService $service;
+    protected AppointmentService $appointmentService;
 
     public function __construct(VisitorService $service){
         $this->service=$service;
+        $this->appointmentService=app(AppointmentService::class);
     }
     public function index():View{
         return view('Visitor.visitor');
@@ -25,7 +29,7 @@ use Yajra\DataTables\DataTables;
      * @throws Exception
      */
     public function getVisitors():JsonResponse{
-        return DataTables::of(Visitor::query())->addIndexColumn()->make();
+        return DataTables::of($this->service->getQuery())->addIndexColumn()->make(true);
     }
 
     public function activate(int $id):JsonResponse{
@@ -113,5 +117,31 @@ use Yajra\DataTables\DataTables;
                 'message' => $e->getMessage()
             ]);
         }
+    }
+    public function appointments(int $id){
+        try{
+            $visitor=$this->service->getById($id);
+            return view('Visitor.view_appointment',compact('visitor'));
+        }catch (Exception){
+            abort(404);
+        }
+    }
+    public function viewAppointments(int $id):JsonResponse{
+        try{
+            $this->service->getById($id);
+            $query=$this->appointmentService->getQueryForVisitor($id);
+
+            return datatables()->of($query)
+                ->addIndexColumn()
+                ->make(true);
+
+
+        }catch (Exception){
+            return response()->json([
+                'status'=>'error',
+                'message'=>'No Such visitors'
+            ]);
+        }
+
     }
 }

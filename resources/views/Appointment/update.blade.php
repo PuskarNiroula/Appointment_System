@@ -121,7 +121,7 @@
                                     title: "Saved!",
                                     text: response.message||"activity saved successfully",
                                 }).then(() => {
-                                    location.reload(); // reload page
+                                    window.location.href = "{{ route('appointment.index') }}";
                                 });
                             }else{
                                 Swal.fire({

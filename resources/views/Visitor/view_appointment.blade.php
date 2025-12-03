@@ -1,6 +1,9 @@
 @extends('Layout.layout')
 
-@section("page-title", "Appointments")
+@section("page-title")
+    Appointments of {{$visitor->name}}
+
+@endsection
 
 @section('content')
 
@@ -33,9 +36,9 @@
                     <tr>
                         <th>#</th>
                         <th>Officer Name</th>
-                        <th>Visitor Name</th>
                         <th>Date</th>
-                        <th>Time</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -52,7 +55,6 @@
 
 @section('scripts')
     <script>
-        let csrf_token =`{{csrf_token()}}`;
         function cancel(id) {
             Swal.fire({
                 "title": "Are you sure?",
@@ -83,24 +85,14 @@
                 }
             })
         }
-
         $(document).ready(function () {
 
             let columns = [
                 {data: 'DT_RowIndex', name: 'id', orderable: false, searchable: false},
-                {data: 'officer_name', name: 'officers.name'},
-                {data: 'visitor_name', name: 'visitors.name'},
+                {data: 'officer_name', name: 'officer.post.name'},
                 {data: 'appointment_date', name: 'appointment_date'},
-                {
-                    data: 'start_time',
-                    name: 'start_time',
-                    render: function(data, type, row) {
-                        return `${row.start_time} - ${row.end_time}`
-
-                    }
-
-                },
-
+                {data: 'start_time', name: 'start_time'},
+                {data: 'end_time', name: 'end_time'},
                 {data: 'status', name: 'status'},
                 {
                     data: 'status',
@@ -121,7 +113,7 @@
                     }
                 }
             ];
-            initDataTable(".data-table", "{{ route('appointment.api') }}", columns);
+            initDataTable(".data-table", "{{ route('visitor.appointment.api',$visitor->id) }}", columns);
         });
     </script>
 

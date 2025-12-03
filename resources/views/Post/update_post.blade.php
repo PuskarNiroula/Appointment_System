@@ -31,7 +31,7 @@
                         >
 
                         <div class="invalid-feedback">
-                            @error('name') {{ $message }} @enderror
+                           <span class="error"></span>
                         </div>
                     </div>
 
@@ -52,15 +52,18 @@
             e.preventDefault();
 
             let name = document.getElementById('name');
-            let error = document.querySelector('.error');
+            let error = document.querySelector('.invalid-feedback .error');
 
-            // Clear previous error
-            error.innerHTML = "";
+
 
             // Validation
             if (name.value.trim() === "") {
+                name.classList.add("is-invalid");
                 error.innerHTML = "Name is required";
                 return;
+            } else {
+                name.classList.remove("is-invalid");
+                error.innerHTML = "";
             }
 
             // Confirmation Alert
@@ -89,9 +92,9 @@
                                 Swal.fire({
                                     icon: "success",
                                     title: "Saved!",
-                                    text: "Post saved successfully"||response.message,
+                                    text: "Post updated successfully"||response.message,
                                 }).then(() => {
-                                    location.reload(); // reload page
+                                    window.location.href = "{{route('post.index')}}";
                                 });
                             }else{
                                 Swal.fire({

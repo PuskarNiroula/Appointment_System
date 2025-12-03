@@ -89,7 +89,7 @@
 
             let columns = [
                 {data: 'DT_RowIndex', name: 'id', orderable: false, searchable: false},
-                {data: 'visitor_name', name: 'visitor_name'},
+                {data: 'visitor_name', name: 'visitors.name'},
                 {data: 'appointment_date', name: 'appointment_date'},
                 {data: 'start_time', name: 'start_time'},
                 {data: 'end_time', name: 'end_time'},
